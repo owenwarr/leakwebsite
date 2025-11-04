@@ -1,7 +1,7 @@
 import React from "react";
 import { Card } from "@/components/ui/card";
 import { Calendar, CheckCircle, Clock } from "lucide-react";
-import ganttImg from "@/assets/gantt-timeline.png";
+import ganttImg from "@/public/gantt-timeline.png";
 
 
 export default function Timeline() {
