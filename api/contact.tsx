@@ -1,52 +1,76 @@
-// /api/contact.ts
-import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { Resend } from 'resend';
+// /api/contact.ts  — Node runtime serverless function (no @vercel/node)
+// If TypeScript complains about types, switch this to /api/contact.js.
 
-export default async function handler(req: VercelRequest, res: VercelResponse) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed (use POST)' });
-  }
-
-  if (!process.env.RESEND_API_KEY) {
-    return res.status(500).json({ error: 'Missing RESEND_API_KEY env var' });
-  }
-  if (!process.env.CONTACT_TO_EMAIL) {
-    return res.status(500).json({ error: 'Missing CONTACT_TO_EMAIL env var' });
-  }
-
-  // Body can be object or raw string depending on client/proxy—handle both
-  let body: any = req.body;
-  if (typeof body === 'string') {
-    try { body = JSON.parse(body); } catch { /* leave as string */ }
-  }
-
-  const { name, email, subject, message } = (body ?? {}) as {
-    name?: string; email?: string; subject?: string; message?: string;
-  };
-
-  if (!name || !email || !subject || !message) {
-    return res.status(400).json({ error: 'Missing required fields (name, email, subject, message)' });
-  }
-
-  const resend = new Resend(process.env.RESEND_API_KEY);
-  const to = process.env.CONTACT_TO_EMAIL!;
-  const from = process.env.CONTACT_FROM_EMAIL || 'Leak Detector Contact <onboarding@resend.dev>';
-
+export default async function handler(req: any, res: any) {
   try {
-    const result = await resend.emails.send({
-      from,
-      to,
-      replyTo: email,
-      subject: `[Contact] ${subject}`,
-      text: `Name: ${name}\nEmail: ${email}\nSubject: ${subject}\n\n${message}`,
+    if (req.method !== 'POST') {
+      res.statusCode = 405;
+      res.setHeader('Content-Type', 'application/json');
+      return res.end(JSON.stringify({ error: 'Method not allowed (use POST)' }));
+    }
+
+    // --- Env checks ---
+    const RESEND_API_KEY = process.env.RESEND_API_KEY;
+    const CONTACT_TO_EMAIL = process.env.CONTACT_TO_EMAIL;
+    const CONTACT_FROM_EMAIL =
+      process.env.CONTACT_FROM_EMAIL || 'Leak Detector Contact <onboarding@resend.dev>';
+
+    if (!RESEND_API_KEY) {
+      res.statusCode = 500;
+      return res.end(JSON.stringify({ error: 'Missing RESEND_API_KEY env var' }));
+    }
+    if (!CONTACT_TO_EMAIL) {
+      res.statusCode = 500;
+      return res.end(JSON.stringify({ error: 'Missing CONTACT_TO_EMAIL env var' }));
+    }
+
+    // --- Parse body robustly (supports Vercel Node & various clients) ---
+    let body: any = req.body;
+    if (!body) {
+      const chunks: Uint8Array[] = [];
+      for await (const chunk of req) chunks.push(chunk);
+      const raw = Buffer.concat(chunks).toString('utf8');
+      try { body = JSON.parse(raw); } catch { body = {}; }
+    }
+    const { name, email, subject, message } = body || {};
+    if (!name || !email || !subject || !message) {
+      res.statusCode = 400;
+      return res.end(JSON.stringify({ error: 'Missing fields: name, email, subject, message' }));
+    }
+
+    // --- Send via Resend REST API using fetch (no SDK needed) ---
+    const r = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${RESEND_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        from: CONTACT_FROM_EMAIL,
+        to: [CONTACT_TO_EMAIL],
+        reply_to: email, // REST API uses snake_case; Node SDK uses replyTo
+        subject: `[Contact] ${subject}`,
+        text:
+          `Name: ${name}\n` +
+          `Email: ${email}\n` +
+          `Subject: ${subject}\n\n` +
+          `${message}\n`,
+      }),
     });
 
-    if ((result as any)?.error) {
-      return res.status(502).json({ error: (result as any).error?.message || 'Resend send error' });
+    const json = await r.json().catch(() => ({} as any));
+    if (!r.ok) {
+      res.statusCode = r.status || 502;
+      return res.end(JSON.stringify({ error: json?.message || JSON.stringify(json) }));
     }
-    return res.status(200).json({ ok: true });
+
+    res.statusCode = 200;
+    res.setHeader('Content-Type', 'application/json');
+    return res.end(JSON.stringify({ ok: true }));
   } catch (err: any) {
     console.error('contact error:', err);
-    return res.status(500).json({ error: err?.message || 'Unexpected error' });
+    res.statusCode = 500;
+    res.setHeader('Content-Type', 'application/json');
+    return res.end(JSON.stringify({ error: err?.message || 'Unexpected error' }));
   }
 }
