@@ -142,7 +142,7 @@ export default function Documentation() {
         "Complete parts list with quantities, costs, suppliers, and part numbers",
       icon: FileSpreadsheet,
       format: "CSV/Excel",
-      size: "45 KB",
+      size: "3 KB",
       pages: "1 sheet",
     },
     {
@@ -344,7 +344,7 @@ export default function Documentation() {
               <div className="text-center">
                 <FileSpreadsheet className="w-10 h-10 text-[#0E3A5D] mx-auto mb-3" />
                 <h3 className="font-bold text-[#0E3A5D] mb-2">BOM + Specs</h3>
-                <p className="text-xs text-gray-600">CSV & PDF (120 KB)</p>
+                <p className="text-xs text-gray-600">CSV & PDF (3 KB)</p>
               </div>
             </button>
           </div>
