@@ -337,16 +337,17 @@ export default function Documentation() {
             </Card>
 
             {/* Make this one trigger the same CSV download */}
-            <button
-              onClick={handleBomDownload}
-              className="text-left rounded-xl border-2 border-gray-200 hover:border-[#2CB1A1] transition-all cursor-pointer p-6"
-            >
-              <div className="text-center">
-                <FileSpreadsheet className="w-10 h-10 text-[#0E3A5D] mx-auto mb-3" />
-                <h3 className="font-bold text-[#0E3A5D] mb-2">BOM + Specs</h3>
-                <p className="text-xs text-gray-600">CSV & PDF (3 KB)</p>
-              </div>
-            </button>
+            <Card
+			  onClick={handleBomDownload}
+			  role="button"
+			  tabIndex={0}
+			  onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && handleBomDownload()}
+			  className="p-6 text-center border-2 border-gray-200 hover:border-[#2CB1A1] transition-all cursor-pointer select-none"
+			>
+			  <FileSpreadsheet className="w-10 h-10 text-[#0E3A5D] mx-auto mb-3" />
+			  <h3 className="font-bold text-[#0E3A5D] mb-2">BOM + Specs</h3>
+			  <p className="text-xs text-gray-600">CSV &amp; PDF (3 KB)</p>
+			</Card>
           </div>
         </section>
 
