@@ -9,9 +9,31 @@ import {
   FileSpreadsheet,
   Presentation,
   Book,
+  ExternalLink,
 } from "lucide-react";
 
-/** ---- Hard-coded BOM copied from PartsList ---- */
+/** ========= Types ========= */
+type DriveKind = "doc" | "slides" | "sheets" | "file";
+type ExportFormat = "pdf" | "docx" | "pptx" | "xlsx";
+type IconType = React.ComponentType<React.SVGProps<SVGSVGElement>>;
+
+type DocItem = {
+  title: string;
+  description: string;
+  icon: IconType;
+  format: string;   // display string shown on the chip
+  size: string;     // display string
+  pages: string;    // display string
+  // Drive integration (optional per item):
+  driveId?: string;
+  driveKind?: DriveKind;
+  // Optional direct overrides:
+  downloadHref?: string;  // if provided, used for "Download" button
+  viewHref?: string;      // if provided, used for "Open in Drive"
+  exportFormat?: ExportFormat; // controls Drive export type (default per kind is PDF)
+};
+
+/** ========= Hard-coded BOM copied from PartsList ========= */
 type BomItem = {
   item: string;
   qty: number | string;
@@ -72,27 +94,67 @@ const bomItems: BomItem[] = [
     item: "USB-C Cable (charging)",
     qty: 1,
     cost: "$6",
-    link: "https://www.amazon.com/Amazon-Basics-Charger-480Mbps-Certified/dp/B01GGKYN0A/ref=sr_1_7_ffob_sspa?dib=eyJ2IjoiMSJ9.kD_UX5cfSPk9-oqnhWXGj8CAbSOafH6GFMHA33knmhTjJySJfMCGsZLd9Ok09ZUQ6MqtaSn3tFi_bDtUD0NnxJEwV_oFVLj3Ylknc5-QkBSWykClXICeZX-TrTCSlUwNiAO01PDRSdqwdCNLhLnbhe6JXU9qx9jyyxIovfWj1COUIXcSqMi885JZS-Upv_KC9x4SqkwbudYx9ar8HNT3hRc1dgcakQPDsupHFYg1sEM.ktyLaCMcEVhDwJPFIxqUJSCUo-rsRYJmbTl5CvCfkd0&dib_tag=se&keywords=usb-c+charger&qid=1762283092&sr=8-7-spons&sp_csd=d2lkZ2V0TmFtZT1zcF9tdGY&psc=1",
+    link: "https://www.amazon.com/Amazon-Basics-Charger-480Mbps-Certified/dp/B01GGKYN0A/ref=sr_1_7_ffob_sspa",
   },
   {
     item: "Heat Shrink Tubing",
     qty: "1ft",
     cost: "$1.00",
-    link: "https://www.amazon.com/650pcs-Shrink-Tubing-innhom-Approved/dp/B07WWWPR2X/ref=sr_1_6?dib=eyJ2IjoiMSJ9.afAtOFc0AWv7IewHnY-SsuN5uE2l0bfL-h5TpNvDnE6kfQoqZkYohyqoxSNuMUcN_WNKaZcK90NvFGHhgy-ATxUo2xlVY1iVJF70EdInhxSFmSUhiM8_FjuUkms3YpVmmAsvh-AeOUPRW-ZONGB63Ffs5WEviLLJj3lcvO1fz9Nvp4-j3OuXJFpR_GMq8_4fzU8J-2Vh9LxqaReMRHN7da1Ez8rgElSgprNg1U8fnv8.Dlip_atTTl9fUNwMOXt7GzO38fO6ZNSqZG1FdQWqPLE&dib_tag=se&keywords=heat+shrink+tubing&qid=1762283113&sr=8-6",
+    link: "https://www.amazon.com/650pcs-Shrink-Tubing-innhom-Approved/dp/B07WWWPR2X",
   },
 ];
 
-/** Utility: build and trigger a CSV download from bomItems */
+/** ========= Helpers: Drive URLs + BOM CSV ========= */
+function driveViewUrl(id: string, kind: DriveKind = "doc") {
+  if (kind === "doc")
+    return `https://docs.google.com/document/d/${id}/view`;
+  if (kind === "slides")
+    return `https://docs.google.com/presentation/d/${id}/preview`;
+  if (kind === "sheets")
+    return `https://docs.google.com/spreadsheets/d/${id}/view`;
+  // Generic file:
+  return `https://drive.google.com/file/d/${id}/view`;
+}
+
+function driveExportUrl(
+  id: string,
+  kind: DriveKind = "doc",
+  fmt: ExportFormat = "pdf"
+) {
+  const effectiveFmt =
+    fmt ??
+    (kind === "doc" ? "pdf" : kind === "slides" ? "pdf" : kind === "sheets" ? "pdf" : "pdf");
+
+  if (kind === "doc") {
+    // PDFs or DOCX
+    if (effectiveFmt === "docx")
+      return `https://docs.google.com/document/d/${id}/export?format=docx`;
+    return `https://docs.google.com/document/d/${id}/export?format=pdf`;
+  }
+
+  if (kind === "slides") {
+    // PDFs or PPTX
+    if (effectiveFmt === "pptx")
+      return `https://docs.google.com/presentation/d/${id}/export/pptx`;
+    return `https://docs.google.com/presentation/d/${id}/export/pdf`;
+  }
+
+  if (kind === "sheets") {
+    // PDFs or XLSX
+    const f = effectiveFmt === "xlsx" ? "xlsx" : "pdf";
+    return `https://docs.google.com/spreadsheets/d/${id}/export?format=${f}`;
+  }
+
+  // Generic file download
+  return `https://drive.google.com/uc?export=download&id=${id}`;
+}
+
 function downloadBomCsv(filename = "bom.csv") {
   const headers = ["Item", "Quantity", "Est. Cost", "Link"];
   const rows = bomItems.map((b) => [b.item, String(b.qty), b.cost, b.link]);
-
-  // Escape CSV fields: wrap in quotes and double any internal quotes
   const esc = (v: string) => `"${v.replace(/"/g, '""')}"`;
   const csv =
-    "\uFEFF" + // BOM so Excel opens as UTF-8
-    [headers, ...rows].map((r) => r.map(esc).join(",")).join("\n");
-
+    "\uFEFF" + [headers, ...rows].map((r) => r.map(esc).join(",")).join("\n");
   const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
@@ -104,11 +166,82 @@ function downloadBomCsv(filename = "bom.csv") {
   URL.revokeObjectURL(url);
 }
 
-/** ---------------- Component ---------------- */
+/** ========= Component ========= */
 export default function Documentation() {
   const handleBomDownload = useCallback(() => downloadBomCsv(), []);
 
-  const documents = [
+  const documents: DocItem[] = [
+    // --- Newly added blocks (before Final Project Report) ---
+    {
+      title: "Formal Project Proposal",
+      description:
+        "Initial scope, objectives, background research, and proposed approach.",
+      icon: FileText,
+      format: "PDF",
+      size: "460 KB",
+      pages: "17 pages",
+      driveId: "15_Tfl6mgKyUBHBJX7zCnFbB299febH6H", // from your example link
+      driveKind: "doc",
+      exportFormat: "pdf", // downloads as PDF
+    },
+    {
+      title: "Ethics Presentation",
+      description:
+        "Slide deck covering ethical considerations, risks, and mitigations.",
+      icon: Presentation,
+      format: "PDF",
+      size: "474 KB",
+      pages: "18 pages",
+      driveId: "1S1Z4VowbqSkpc1xgpE9Srcek8GLnmUqa",
+      driveKind: "slides",
+      exportFormat: "pdf", // download as PDF (or "pptx" if you prefer PPTX)
+    },
+    {
+      title: "Ethics Report",
+      description:
+        "Written analysis of ethical concerns, mitigations, and policy alignment.",
+      icon: FileText,
+      format: "Word (.docx)",
+      size: "82 KB",
+      pages: "3 pages",
+      downloadHref: "https://drive.google.com/uc?export=download&id=1hRQk2NyQBqJ2KpFXw_7XO0QPRm0Lf_Gz", // you provided this ID
+	  exportFormat: "DOCX"
+    },
+    {
+      title: "Midterm Presentation",
+      description:
+        "Slide deck summarizing progress, prototype status, and next steps.",
+      icon: Presentation,
+      format: "PDF",
+      size: "644 KB",
+      pages: "20 pages",
+      driveId: "1JfePofnCtRxtr0oK3yDUDOosV-BL_JAR",
+      driveKind: "slides",
+      exportFormat: "pdf",
+    },
+    {
+      title: "Sustainability Presentation",
+      description:
+        "Environmental footprint, materials, energy, packaging, and EOL considerations.",
+      icon: Presentation,
+      format: "PDF",
+      size: "443 KB",
+      pages: "21 pages",
+      driveId: "1ygLV5DHc4G7iC-gxCRub8RvQ0-aT197z",
+      driveKind: "slides",
+      exportFormat: "pdf",
+    },
+	{
+      title: "Sustainability Report",
+      description:
+        "Written analysis of sustainability concerns, environemntal footprint, materials, energy, packaging, and EOL considerations.",
+      icon: FileText,
+      format: "Word (.docx)",
+      size: "-",
+      pages: "-",
+      downloadHref: "https://drive.google.com/uc?export=download&id=1hRQk2NyQBqJ2KpFXw_7XO0QPRm0Lf_Gz", // you provided this ID
+    },
+    // --- Your original bundle ---
     {
       title: "Final Project Report",
       description:
@@ -117,6 +250,9 @@ export default function Documentation() {
       format: "PDF",
       size: "8.5 MB",
       pages: "60 pages",
+      driveId: "REPLACE_WITH_FINAL_REPORT_DOC_ID",
+      driveKind: "doc",
+      exportFormat: "pdf",
     },
     {
       title: "Project Poster",
@@ -126,6 +262,8 @@ export default function Documentation() {
       format: "PDF",
       size: "12 MB",
       pages: '36" x 48"',
+      driveId: "REPLACE_WITH_POSTER_FILE_ID", // if it's already a PDF file, set driveKind: "file"
+      driveKind: "file",
     },
     {
       title: "Presentation Slides",
@@ -135,6 +273,9 @@ export default function Documentation() {
       format: "PPTX",
       size: "25 MB",
       pages: "45 slides",
+      driveId: "REPLACE_WITH_FINAL_SLIDES_ID",
+      driveKind: "slides",
+      exportFormat: "pptx", // download as PPTX
     },
     {
       title: "Bill of Materials (BOM)",
@@ -144,6 +285,7 @@ export default function Documentation() {
       format: "CSV/Excel",
       size: "3 KB",
       pages: "1 sheet",
+      // handled via custom CSV export (not Drive)
     },
     {
       title: "User Manual",
@@ -152,6 +294,9 @@ export default function Documentation() {
       format: "PDF",
       size: "2.3 MB",
       pages: "16 pages",
+      driveId: "REPLACE_WITH_USER_MANUAL_DOC_ID",
+      driveKind: "doc",
+      exportFormat: "pdf",
     },
     {
       title: "Technical Specification",
@@ -161,6 +306,9 @@ export default function Documentation() {
       format: "PDF",
       size: "5.1 MB",
       pages: "28 pages",
+      driveId: "REPLACE_WITH_TECH_SPEC_DOC_ID",
+      driveKind: "doc",
+      exportFormat: "pdf",
     },
   ];
 
@@ -209,14 +357,24 @@ export default function Documentation() {
 
         {/* Documents Grid */}
         <section className="mb-20">
-          <h2 className="text-3xl font-bold text-[#0E3A5D] mb-8">
-            Project Documents
-          </h2>
+          <h2 className="text-3xl font-bold text-[#0E3A5D] mb-8">Project Documents</h2>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {documents.map((doc, index) => {
               const Icon = doc.icon;
+
+              // Compute view + download URLs
+              const viewUrl =
+                doc.viewHref ??
+                (doc.driveId ? driveViewUrl(doc.driveId, doc.driveKind) : undefined);
+              const downloadUrl =
+                doc.downloadHref ??
+                (doc.driveId
+                  ? driveExportUrl(doc.driveId, doc.driveKind, doc.exportFormat)
+                  : undefined);
+
               const isBom = doc.title === "Bill of Materials (BOM)";
+
               return (
                 <Card
                   key={index}
@@ -227,9 +385,7 @@ export default function Documentation() {
                       <Icon className="w-6 h-6 text-white" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-bold text-[#0E3A5D] mb-1 text-lg">
-                        {doc.title}
-                      </h3>
+                      <h3 className="font-bold text-[#0E3A5D] mb-1 text-lg">{doc.title}</h3>
                       <div className="flex gap-2 text-xs text-gray-500">
                         <span>{doc.format}</span>
                         <span>•</span>
@@ -240,24 +396,51 @@ export default function Documentation() {
                     </div>
                   </div>
 
-                  <p className="text-sm text-gray-600 mb-4 leading-relaxed">
-                    {doc.description}
-                  </p>
+                  <p className="text-sm text-gray-600 mb-4 leading-relaxed">{doc.description}</p>
 
-                  {isBom ? (
-                    <Button
-                      onClick={handleBomDownload}
-                      className="w-full bg-[#2CB1A1] hover:bg-[#2CB1A1]/90"
-                    >
-                      <Download className="w-4 h-4 mr-2" />
-                      Download BOM (CSV)
-                    </Button>
-                  ) : (
-                    <Button className="w-full bg-[#2CB1A1] hover:bg-[#2CB1A1]/90">
-                      <Download className="w-4 h-4 mr-2" />
-                      Download {doc.format}
-                    </Button>
-                  )}
+                  {/* Action buttons */}
+                  <div className="flex gap-3">
+                    {isBom ? (
+                      <Button
+                        onClick={handleBomDownload}
+                        className="w-full bg-[#2CB1A1] hover:bg-[#2CB1A1]/90"
+                      >
+                        <Download className="w-4 h-4 mr-2" />
+                        Download BOM (CSV)
+                      </Button>
+                    ) : (
+                      <>
+                        {viewUrl && (
+                          <a href={viewUrl} target="_blank" rel="noreferrer" className="w-1/2">
+                            <Button
+                              variant="outline"
+                              className="w-full border-[#0E3A5D] text-[#0E3A5D] hover:bg-[#0E3A5D] hover:text-white"
+                            >
+                              <ExternalLink className="w-4 h-4 mr-2" />
+                              Open in Drive
+                            </Button>
+                          </a>
+                        )}
+                        {downloadUrl && (
+						  <a
+							href={downloadUrl}
+							// PDFs can open in a new tab; Office formats should download
+							target={(doc.exportFormat ?? "pdf") === "pdf" ? "_blank" : "_self"}
+							rel="noreferrer"
+							className="w-1/2"
+							// helps some browsers prefer download behavior
+							download={((doc.exportFormat ?? "pdf") !== "pdf") ? `${doc.title}.${doc.exportFormat}` : undefined}
+						  >
+							<Button className="w-full bg-[#2CB1A1] hover:bg-[#2CB1A1]/90">
+							  <Download className="w-4 h-4 mr-2" />
+							  Download {doc.exportFormat?.toUpperCase() ?? "PDF"}
+							</Button>
+						  </a>
+						)}
+
+                      </>
+                    )}
+                  </div>
                 </Card>
               );
             })}
@@ -267,9 +450,7 @@ export default function Documentation() {
         {/* Code Repositories */}
         <section className="mb-20">
           <div className="flex items-center justify-between mb-8">
-            <h2 className="text-3xl font-bold text-[#0E3A5D]">
-              Source Code Repositories
-            </h2>
+            <h2 className="text-3xl font-bold text-[#0E3A5D]">Source Code Repositories</h2>
             <Button
               variant="outline"
               className="border-[#0E3A5D] text-[#0E3A5D] hover:bg-[#0E3A5D] hover:text-white"
@@ -291,12 +472,8 @@ export default function Documentation() {
                       <Github className="w-6 h-6 text-[#0E3A5D]" />
                     </div>
                     <div>
-                      <h3 className="text-lg font-bold text-[#0E3A5D] mb-1">
-                        {repo.name}
-                      </h3>
-                      <p className="text-sm text-gray-600 mb-2">
-                        {repo.description}
-                      </p>
+                      <h3 className="text-lg font-bold text-[#0E3A5D] mb-1">{repo.name}</h3>
+                      <p className="text-sm text-gray-600 mb-2">{repo.description}</p>
                       <span className="inline-block px-3 py-1 bg-gray-100 text-gray-700 text-xs rounded-full">
                         {repo.language}
                       </span>
@@ -327,7 +504,7 @@ export default function Documentation() {
             <Card className="p-6 text-center border-2 border-gray-200 hover:border-[#2CB1A1] transition-all cursor-pointer">
               <FileText className="w-10 h-10 text-[#0E3A5D] mx-auto mb-3" />
               <h3 className="font-bold text-[#0E3A5D] mb-2">CAD Files</h3>
-              <p className="text-xs text-gray-600">STEP & STL (8.2 MB)</p>
+              <p className="text-xs text-gray-600">STEP &amp; STL (8.2 MB)</p>
             </Card>
 
             <Card className="p-6 text-center border-2 border-gray-200 hover:border-[#2CB1A1] transition-all cursor-pointer">
@@ -336,27 +513,24 @@ export default function Documentation() {
               <p className="text-xs text-gray-600">All repositories</p>
             </Card>
 
-            {/* Make this one trigger the same CSV download */}
             <Card
-			  onClick={handleBomDownload}
-			  role="button"
-			  tabIndex={0}
-			  onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && handleBomDownload()}
-			  className="p-6 text-center border-2 border-gray-200 hover:border-[#2CB1A1] transition-all cursor-pointer select-none"
-			>
-			  <FileSpreadsheet className="w-10 h-10 text-[#0E3A5D] mx-auto mb-3" />
-			  <h3 className="font-bold text-[#0E3A5D] mb-2">BOM + Specs</h3>
-			  <p className="text-xs text-gray-600">CSV &amp; PDF (3 KB)</p>
-			</Card>
+              onClick={handleBomDownload}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && handleBomDownload()}
+              className="p-6 text-center border-2 border-gray-200 hover:border-[#2CB1A1] transition-all cursor-pointer select-none"
+            >
+              <FileSpreadsheet className="w-10 h-10 text-[#0E3A5D] mx-auto mb-3" />
+              <h3 className="font-bold text-[#0E3A5D] mb-2">BOM + Specs</h3>
+              <p className="text-xs text-gray-600">CSV &amp; PDF (3 KB)</p>
+            </Card>
           </div>
         </section>
 
         {/* Licensing */}
         <section>
           <Card className="p-8 bg-gradient-to-br from-[#0E3A5D] to-[#2CB1A1] text-white">
-            <h2 className="text-2xl font-bold mb-6 text-center">
-              Open Source Licensing
-            </h2>
+            <h2 className="text-2xl font-bold mb-6 text-center">Open Source Licensing</h2>
 
             <div className="max-w-3xl mx-auto">
               <p className="text-gray-200 mb-6 leading-relaxed text-center">
@@ -419,9 +593,9 @@ export default function Documentation() {
               If you use this project in academic work, please cite as follows:
             </p>
             <div className="bg-white rounded-lg p-6 border border-gray-200 font-mono text-sm text-gray-800 max-w-4xl mx-auto">
-              Conger, D., Warrington, O., Holder, S., & Waters, J. (2025). <em>Renter-Friendly Leak Detector:
-              Non-Invasive Plumbing Monitoring with RMS-Based Anomaly Detection.</em> Senior Design Project,
-              Department of Electrical &amp; Computer Engineering, Georgia Southern University.
+              Conger, D., Warrington, O., Holder, S., &amp; Waters, J. (2025). <em>Renter-Friendly Leak
+              Detector: Non-Invasive Plumbing Monitoring with RMS-Based Anomaly Detection.</em> Senior
+              Design Project, Department of Electrical &amp; Computer Engineering, Georgia Southern University.
             </div>
           </Card>
         </section>
