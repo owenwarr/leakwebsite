@@ -132,7 +132,7 @@ export default function Timeline() {
             </Card>
 
             <Card className="p-6 text-center border-2 border-gray-200 hover:border-[#2CB1A1] transition-all">
-              <div className="text-4xl font-bold text-[#0E3A5D] mb-2">5</div>
+              <div className="text-4xl font-bold text-[#0E3A5D] mb-2">30</div>
               <div className="text-sm text-gray-600">Test Scenarios</div>
             </Card>
           </div>

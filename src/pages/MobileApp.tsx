@@ -143,7 +143,7 @@ export default function MobileApp() {
                   </li>
                   <li className="flex items-start gap-2">
                     <CheckCircle className="w-5 h-5 text-[#2CB1A1] flex-shrink-0 mt-0.5" />
-                    <span className="text-gray-700">Device claiming via unique QR code or serial</span>
+                    <span className="text-gray-700">Device claiming via unique mac address</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <CheckCircle className="w-5 h-5 text-[#2CB1A1] flex-shrink-0 mt-0.5" />
@@ -246,8 +246,6 @@ export default function MobileApp() {
                 <h3 className="font-semibold text-[#0E3A5D] mb-3">Frontend Framework</h3>
                 <ul className="space-y-2 text-gray-600 text-sm">
                   <li>• Flutter (Dart)</li>
-                  <li>• Material Design 3</li>
-                  <li>• State management: Provider</li>
                   <li>• Cross-platform compatibility</li>
                 </ul>
               </div>

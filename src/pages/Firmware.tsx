@@ -185,54 +185,7 @@ export default function Firmware() {
           </div>
         </section>
 
-        {/* Configuration */}
-        <section className="mb-20">
-          <Card className="p-8 bg-gray-50 border border-gray-200">
-            <h2 className="text-2xl font-bold text-[#0E3A5D] mb-6">
-              Configurable Parameters
-            </h2>
-            
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="border-b-2 border-gray-300">
-                  <tr>
-                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-900">Parameter</th>
-                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-900">Default</th>
-                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-900">Description</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-200">
-                  <tr>
-                    <td className="px-4 py-3 font-medium text-gray-900">SAMPLE_RATE</td>
-                    <td className="px-4 py-3 text-gray-600">100 Hz</td>
-                    <td className="px-4 py-3 text-gray-600">Accelerometer sampling frequency</td>
-                  </tr>
-                  <tr>
-                    <td className="px-4 py-3 font-medium text-gray-900">WINDOW_SIZE</td>
-                    <td className="px-4 py-3 text-gray-600">1 second</td>
-                    <td className="px-4 py-3 text-gray-600">RMS calculation window duration</td>
-                  </tr>
-                  <tr>
-                    <td className="px-4 py-3 font-medium text-gray-900">THRESHOLD</td>
-                    <td className="px-4 py-3 text-gray-600">0.15 g</td>
-                    <td className="px-4 py-3 text-gray-600">Deviation threshold for anomaly detection</td>
-                  </tr>
-                  <tr>
-                    <td className="px-4 py-3 font-medium text-gray-900">PERSIST_TIME</td>
-                    <td className="px-4 py-3 text-gray-600">30 seconds</td>
-                    <td className="px-4 py-3 text-gray-600">Minimum anomaly duration before alert</td>
-                  </tr>
-                  <tr>
-                    <td className="px-4 py-3 font-medium text-gray-900">UPLOAD_INTERVAL</td>
-                    <td className="px-4 py-3 text-gray-600">1 hour</td>
-                    <td className="px-4 py-3 text-gray-600">Scheduled data upload frequency</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </Card>
-        </section>
-
+       
         {/* Code Repository */}
         <section>
           <Card className="p-8 bg-gradient-to-br from-[#0E3A5D] to-[#2CB1A1] text-white">
@@ -244,7 +197,7 @@ export default function Firmware() {
               <p className="text-gray-200 mb-6 max-w-2xl mx-auto">
                 Complete source code, documentation, and build instructions available on GitHub
               </p>
-              <Button className="bg-white text-[#0E3A5D] hover:bg-gray-100">
+              <Button className="bg-white/10 border-white/20 text-white hover:bg-white/20 px-8 py-6 text-lg backdrop-blur-sm">
                 <Github className="w-4 h-4 mr-2" />
                 View Repository
               </Button>

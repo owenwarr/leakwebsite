@@ -69,7 +69,7 @@ export default function Sustainability() {
           </h2>
           
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            <Card className="p-6 border-2 border-gray-200 hover:border-[#2CB1A1] transition-all">
+            <Card className="p-6 border-2 border-gray-600 hover:border-[#2CB1A1] transition-all">
               <Zap className="w-10 h-10 text-[#2CB1A1] mb-4" />
               <h3 className="text-lg font-bold text-[#0E3A5D] mb-2">
                 Device Power Draw
@@ -78,7 +78,7 @@ export default function Sustainability() {
               <div className="text-sm text-gray-600">Estimated per month (current firmware)</div>
             </Card>
 
-            <Card className="p-6 border-2 border-gray-200 hover:border-[#2CB1A1] transition-all">
+            <Card className="p-6 border-2 border-gray-600 hover:border-[#2CB1A1] transition-all">
               <TrendingDown className="w-10 h-10 text-green-600 mb-4" />
               <h3 className="text-lg font-bold text-[#0E3A5D] mb-2">
                 With Deep Sleep
@@ -87,7 +87,7 @@ export default function Sustainability() {
               <div className="text-sm text-gray-600">Projected with optimization</div>
             </Card>
 
-            <Card className="p-6 border-2 border-gray-200 hover:border-[#2CB1A1] transition-all">
+            <Card className="p-6 border-2 border-gray-600 hover:border-[#2CB1A1] transition-all">
               <Leaf className="w-10 h-10 text-[#0E3A5D] mb-4" />
               <h3 className="text-lg font-bold text-[#0E3A5D] mb-2">
                 CO₂ Footprint
@@ -108,7 +108,7 @@ export default function Sustainability() {
             <div className="grid md:grid-cols-2 gap-8">
               <div>
                 <h3 className="text-lg font-semibold mb-4 text-[#2CB1A1]">Water Conservation</h3>
-                <ul className="space-y-3 text-gray-200">
+                <ul className="space-y-3 text-gray-600">
                   <li className="flex items-start gap-2">
                     <div className="w-1.5 h-1.5 rounded-full bg-[#2CB1A1] mt-2 flex-shrink-0"></div>
                     <span>Typical household leak wastes 10,000+ gallons/year</span>
@@ -130,7 +130,7 @@ export default function Sustainability() {
               
               <div>
                 <h3 className="text-lg font-semibold mb-4 text-[#2CB1A1]">Material Sustainability</h3>
-                <ul className="space-y-3 text-gray-200">
+                <ul className="space-y-3 text-gray-600">
                   <li className="flex items-start gap-2">
                     <div className="w-1.5 h-1.5 rounded-full bg-[#2CB1A1] mt-2 flex-shrink-0"></div>
                     <span>Recyclable PLA 3D printing filament</span>
@@ -155,7 +155,7 @@ export default function Sustainability() {
 
         {/* Cloud Data Usage */}
         <section className="mb-20">
-          <Card className="p-8 bg-gray-50 border border-gray-200">
+          <Card className="p-8 bg-gray-50 border border-gray-600">
             <h2 className="text-2xl font-bold text-[#0E3A5D] mb-6">
               Cloud Data Usage & Storage
             </h2>
@@ -186,7 +186,7 @@ export default function Sustainability() {
               </div>
             </div>
             
-            <div className="mt-6 p-4 bg-white rounded-lg border border-gray-200">
+            <div className="mt-6 p-4 bg-white rounded-lg border border-gray-600">
               <p className="text-sm text-gray-700 leading-relaxed">
                 <strong>Carbon Impact:</strong> Estimated 0.001 kg CO₂/user/year for cloud storage 
                 and data transmission, negligible compared to water conservation benefits.
@@ -259,8 +259,8 @@ export default function Sustainability() {
               <div>
                 <h3 className="font-bold text-green-900 mb-2">Total Cost of Ownership (TCO)</h3>
                 <p className="text-gray-700 leading-relaxed">
-                  Over a 5-year lifespan: <strong>$50-75 initial + $5/year electricity = $75-100 total.</strong> 
-                  Compare this to the average $10,000 water damage repair cost, making this solution 
+                  Over a 5-year lifespan: <strong>$50-75 initial + $5/year electricity = $75-100 total. </strong> 
+                   Compare this to the average $10,000 water damage repair cost, making this solution 
                   approximately <strong>100-130x more cost-effective</strong> than a single undetected leak.
                 </p>
               </div>

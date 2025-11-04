@@ -91,11 +91,11 @@ export default function TeamContact() {
               <div>
                 <h2 className="text-2xl font-bold mb-4">Faculty Advisor</h2>
                 <p className="text-gray-200 leading-relaxed">
-                  <strong>Dr. [Advisor Name]</strong><br />
+                  <strong>Dr. Seungmo (Mo) Kim</strong><br />
                   Associate Professor<br />
                   Department of Electrical & Computer Engineering<br />
-                  <a href="mailto:advisor@georgiasouthern.edu" className="text-white underline hover:text-gray-200">
-                    advisor@georgiasouthern.edu
+                  <a href="mailto:seungmokim@georgiasouthern.edu" className="text-white underline hover:text-gray-200">
+                    seungmokim@georgiasouthern.edu
                   </a>
                 </p>
               </div>
@@ -127,7 +127,7 @@ export default function TeamContact() {
               </div>
               <h3 className="font-bold text-[#0E3A5D] mb-2">Email</h3>
               <p className="text-sm text-gray-600">
-                leakdetector@georgiasouthern.edu
+                
               </p>
             </Card>
 
@@ -137,7 +137,7 @@ export default function TeamContact() {
               </div>
               <h3 className="font-bold text-[#0E3A5D] mb-2">Phone</h3>
               <p className="text-sm text-gray-600">
-                (912) 478-5000
+                
               </p>
             </Card>
           </div>

@@ -18,7 +18,7 @@ export default function LessonsLearned() {
         },
         {
           title: "Persistence Logic is Critical",
-          description: "Simple threshold detection produced too many false positives from transient events (toilet flushes, appliances). Adding 30-second persistence requirement reduced false positives by 73%."
+          description: "Simple threshold detection produced too many false positives from transient events (toilet flushes, appliances). Adding 60-second persistence requirement reduced false positives."
         }
       ]
     },
@@ -28,7 +28,7 @@ export default function LessonsLearned() {
       learnings: [
         {
           title: "Clamp Tension Matters",
-          description: "Mounting strap tension significantly affects sensor coupling. Too loose = poor signal; too tight = pipe deformation. Found optimal tension through iterative testing—firm but not excessive."
+          description: "Mounting strap tension significantly affects sensor coupling. Too loose = poor signal; too tight = pipe deformation. Found optimal tension through iterative testing firm but not excessive."
         },
         {
           title: "Foam Dampening Unnecessary",
@@ -46,7 +46,7 @@ export default function LessonsLearned() {
       learnings: [
         {
           title: "Baseline Learning Duration",
-          description: "Initially used 1-hour baseline learning. Testing showed 24-hour capture better accounts for daily usage patterns (morning showers, evening dishes). Adaptive recalibration helps with seasonal changes."
+          description: "On install, the device records ~60 seconds of idle vibration to set a baseline RMS. During operation, it flags events when RMS deviates beyond a fixed threshold (tuned from bench tests) for a short persistence window."
         },
         {
           title: "Real-Time vs Batch Updates",
@@ -54,7 +54,7 @@ export default function LessonsLearned() {
         },
         {
           title: "Mobile UX Simplicity",
-          description: "Early app designs were feature-heavy. User testing revealed preference for simple, clear interfaces. Most users want: device status, recent alerts, and battery level—nothing more."
+          description: "Early app designs were feature-heavy. User testing revealed preference for simple, clear interfaces. Most users want: device status, recent alerts, and battery level, nothing more."
         }
       ]
     },
@@ -194,14 +194,6 @@ export default function LessonsLearned() {
                     </div>
                     <span className="text-gray-200">
                       More extensive testing across diverse pipe materials
-                    </span>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <div className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <span className="text-sm">→</span>
-                    </div>
-                    <span className="text-gray-200">
-                      Earlier user feedback on mobile app UX
                     </span>
                   </li>
                   <li className="flex items-start gap-3">

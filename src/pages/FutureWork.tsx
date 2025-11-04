@@ -33,13 +33,6 @@ export default function FutureWork() {
       details: ["Secure update mechanism", "Rollback capability", "Update scheduling", "Version management dashboard"]
     },
     {
-      icon: TrendingUp,
-      title: "Multi-Axis Sensor Fusion",
-      priority: "Medium",
-      description: "Leverage all three accelerometer axes for improved detection accuracy",
-      details: ["X, Y, Z axis correlation analysis", "Direction-based anomaly detection", "Vibration signature library", "Enhanced leak classification"]
-    },
-    {
       icon: Lightbulb,
       title: "Expanded Pipe Size Support",
       priority: "Low",
@@ -52,14 +45,6 @@ export default function FutureWork() {
     {
       title: "Frequency Domain Analysis",
       description: "Investigate FFT-based detection to complement RMS analysis for more nuanced leak signatures"
-    },
-    {
-      title: "Pressure Sensor Integration",
-      description: "Add pressure monitoring for correlated detection and improved accuracy"
-    },
-    {
-      title: "Edge ML Inference",
-      description: "Deploy TinyML models on ESP32 for on-device anomaly classification"
     },
     {
       title: "Mesh Networking",

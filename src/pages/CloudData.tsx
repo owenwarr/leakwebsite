@@ -7,22 +7,17 @@ export default function CloudData() {
     {
       name: "profiles",
       description: "User account information and preferences",
-      fields: ["id", "email", "created_at", "notification_settings"]
+      fields: ["username", "fcm_token", "created_at"]
     },
     {
       name: "devices",
       description: "Registered leak detector devices",
-      fields: ["id", "serial_number", "owner_id", "location", "baseline_rms", "status"]
-    },
-    {
-      name: "events",
-      description: "Detection events and anomaly records",
-      fields: ["id", "device_id", "timestamp", "rms_value", "deviation", "severity"]
+      fields: ["device_id", "device_name", "username", "status", "last_updated"]
     },
     {
       name: "leaks",
-      description: "Confirmed leak incidents with user feedback",
-      fields: ["id", "event_id", "confirmed", "damage_estimate", "notes"]
+      description: "Confirmed leak incidents",
+      fields: ["id", "device_id", "rms", "occured_at"]
     }
   ];
 
@@ -127,7 +122,7 @@ export default function CloudData() {
                 <h2 className="text-2xl font-bold mb-4">
                   Security & Privacy
                 </h2>
-                <p className="text-gray-200 mb-6 leading-relaxed">
+                <p className="text-gray-600 mb-6 leading-relaxed">
                   We prioritize user data protection with industry-standard security practices 
                   and transparent privacy policies.
                 </p>
@@ -135,7 +130,7 @@ export default function CloudData() {
                 <div className="space-y-4">
                   <div>
                     <h3 className="font-semibold mb-2">Encryption</h3>
-                    <ul className="space-y-1 text-sm text-gray-200">
+                    <ul className="space-y-1 text-sm text-gray-600">
                       <li>• TLS 1.3 for data in transit</li>
                       <li>• AES-256 encryption at rest</li>
                       <li>• Secure password hashing (bcrypt)</li>
@@ -144,7 +139,7 @@ export default function CloudData() {
                   
                   <div>
                     <h3 className="font-semibold mb-2">Access Control</h3>
-                    <ul className="space-y-1 text-sm text-gray-200">
+                    <ul className="space-y-1 text-sm text-gray-600">
                       <li>• Row-level security policies</li>
                       <li>• JWT-based authentication</li>
                       <li>• API rate limiting</li>
@@ -153,7 +148,7 @@ export default function CloudData() {
                   
                   <div>
                     <h3 className="font-semibold mb-2">Compliance</h3>
-                    <ul className="space-y-1 text-sm text-gray-200">
+                    <ul className="space-y-1 text-sm text-gray-600">
                       <li>• GDPR-compliant data handling</li>
                       <li>• Right to data deletion</li>
                       <li>• Transparent data usage policies</li>
@@ -167,34 +162,34 @@ export default function CloudData() {
                 <h2 className="text-2xl font-bold mb-4">
                   Data Retention
                 </h2>
-                <p className="text-gray-200 mb-6 leading-relaxed">
+                <p className="text-gray-600 mb-6 leading-relaxed">
                   We maintain event data for analysis while respecting user privacy and storage efficiency.
                 </p>
                 
                 <div className="space-y-4">
                   <div>
                     <h3 className="font-semibold mb-2">Event Data</h3>
-                    <ul className="space-y-1 text-sm text-gray-200">
+                    <ul className="space-y-1 text-sm text-gray-600">
                       <li>• 90-day rolling retention by default</li>
                       <li>• User-configurable retention periods</li>
-                      <li>• Automatic archival for confirmed leaks</li>
+                      <li> </li>
                     </ul>
                   </div>
                   
                   <div>
                     <h3 className="font-semibold mb-2">User Data</h3>
-                    <ul className="space-y-1 text-sm text-gray-200">
+                    <ul className="space-y-1 text-sm text-gray-600">
                       <li>• Account deletion removes all personal data</li>
-                      <li>• Anonymous analytics (opt-in)</li>
                       <li>• No third-party data sharing</li>
+					  <li> </li>
                     </ul>
                   </div>
                   
                   <div>
                     <h3 className="font-semibold mb-2">Export Options</h3>
-                    <ul className="space-y-1 text-sm text-gray-200">
-                      <li>• CSV export of event history</li>
-                      <li>• JSON API for raw data access</li>
+                    <ul className="space-y-1 text-sm text-gray-600">
+                      <li>• CSV export of event history (planned)</li>
+                      <li>• JSON API for raw data access (planned)</li>
                       <li>• Scheduled reports (planned)</li>
                     </ul>
                   </div>
@@ -281,7 +276,7 @@ export default function CloudData() {
             <Card className="p-6 border-2 border-[#2CB1A1]">
               <Download className="w-10 h-10 text-[#2CB1A1] mb-4" />
               <h3 className="text-xl font-bold text-[#0E3A5D] mb-3">
-                Data Export
+                Data Export (Planned)
               </h3>
               <p className="text-gray-600 mb-4 leading-relaxed">
                 Users can export their complete event history in CSV or JSON format for 

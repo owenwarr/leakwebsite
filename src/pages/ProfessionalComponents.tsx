@@ -293,22 +293,22 @@ export default function ProfessionalComponents() {
 
         {/* Warranty & Liability */}
         <section>
-          <Card className="p-8 bg-[#0E3A5D] text-white">
+          <Card className="p-8 bg-[#0E3A5D] text-black">
             <div className="flex items-start gap-4 mb-6">
               <div className="w-14 h-14 rounded-xl bg-white/10 flex items-center justify-center flex-shrink-0">
-                <AlertTriangle className="w-7 h-7 text-white" />
+                <AlertTriangle className="w-7 h-7 text-black" />
               </div>
               <div>
                 <h2 className="text-2xl font-bold mb-2">
                   Disclaimer & Limitations
                 </h2>
-                <p className="text-gray-200 text-sm">
+                <p className="text-gray-600 text-sm">
                   Important information for prototype deployment
                 </p>
               </div>
             </div>
             
-            <div className="space-y-4 text-gray-200 text-sm leading-relaxed">
+            <div className="space-y-4 text-gray-600 text-sm leading-relaxed">
               <p>
                 <strong>Academic Prototype:</strong> This device is a senior design project prototype 
                 developed for educational purposes. It has not undergone full certification testing 

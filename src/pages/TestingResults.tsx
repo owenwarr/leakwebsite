@@ -25,7 +25,6 @@ export default function TestingResults() {
     { scenario: "Idle Baseline", rms: "0.02 g", result: "success", notes: "Stable baseline established across 24-hour period" },
     { scenario: "Faucet Use", rms: "0.08-0.12 g", result: "success", notes: "Correctly identified as normal, no false alert" },
     { scenario: "Toilet Flush", rms: "0.15-0.25 g", result: "success", notes: "Brief spike, correctly ignored by persistence logic" },
-    { scenario: "Shower Use", rms: "0.10-0.18 g", result: "success", notes: "Extended elevated RMS, within normal threshold" },
     { scenario: "Slow Drip Leak", rms: "0.05-0.08 g", result: "detected", notes: "Detected after 45 seconds persistence" },
     { scenario: "Stream Leak", rms: "0.18-0.30 g", result: "detected", notes: "Immediate detection within 30 seconds" },
     { scenario: "Washing Machine", rms: "0.20-0.35 g", result: "warning", notes: "Initial false positive; resolved with baseline adjustment" },
@@ -82,7 +81,7 @@ export default function TestingResults() {
         <section className="mb-20">
           <h2 className="text-3xl font-bold text-[#0E3A5D] mb-8">Test Results Summary</h2>
 
-          <Card className="overflow-hidden border-2 border-gray-200">
+          <Card className="overflow-hidden border-2 border-gray-600">
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead className="bg-[#0E3A5D] text-white">
@@ -93,7 +92,7 @@ export default function TestingResults() {
                     <th className="px-6 py-4 text-left font-semibold">Notes</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-200">
+                <tbody className="divide-y divide-gray-600">
                   {testResults.map((test, index) => (
                     <tr key={index} className="hover:bg-gray-50 transition-colors">
                       <td className="px-6 py-4 font-medium text-gray-900">{test.scenario}</td>
@@ -118,25 +117,25 @@ export default function TestingResults() {
           <h2 className="text-3xl font-bold text-[#0E3A5D] mb-8">Performance Metrics</h2>
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            <Card className="p-6 border-2 border-gray-200 hover:border-[#2CB1A1] transition-all text-center">
+            <Card className="p-6 border-2 border-gray-600 hover:border-[#2CB1A1] transition-all text-center">
               <div className="text-4xl font-bold text-[#0E3A5D] mb-2">95%</div>
               <div className="text-sm text-gray-600">Detection Accuracy</div>
               <div className="text-xs text-gray-500 mt-2">True positives on actual leaks</div>
             </Card>
 
-            <Card className="p-6 border-2 border-gray-200 hover:border-[#2CB1A1] transition-all text-center">
+            <Card className="p-6 border-2 border-gray-600 hover:border-[#2CB1A1] transition-all text-center">
               <div className="text-4xl font-bold text-[#0E3A5D] mb-2">12%</div>
               <div className="text-sm text-gray-600">False Positive Rate</div>
               <div className="text-xs text-gray-500 mt-2">Reduced with persistence logic</div>
             </Card>
 
-            <Card className="p-6 border-2 border-gray-200 hover:border-[#2CB1A1] transition-all text-center">
-              <div className="text-4xl font-bold text-[#0E3A5D] mb-2">~45s</div>
+            <Card className="p-6 border-2 border-gray-600 hover:border-[#2CB1A1] transition-all text-center">
+              <div className="text-4xl font-bold text-[#0E3A5D] mb-2">~180s</div>
               <div className="text-sm text-gray-600">Avg. Detection Time</div>
               <div className="text-xs text-gray-500 mt-2">For sustained anomalies</div>
             </Card>
 
-            <Card className="p-6 border-2 border-gray-200 hover:border-[#2CB1A1] transition-all text-center">
+            <Card className="p-6 border-2 border-gray-600 hover:border-[#2CB1A1] transition-all text-center">
               <div className="text-4xl font-bold text-[#0E3A5D] mb-2">0</div>
               <div className="text-sm text-gray-600">False Negatives</div>
               <div className="text-xs text-gray-500 mt-2">All leaks detected in tests</div>
@@ -146,7 +145,7 @@ export default function TestingResults() {
 
         {/* Confusion Matrix */}
         <section className="mb-20">
-          <Card className="p-8 bg-gray-50 border border-gray-200">
+          <Card className="p-8 bg-gray-50 border border-gray-600">
             <h2 className="text-2xl font-bold text-[#0E3A5D] mb-6">Confusion Matrix (Preliminary)</h2>
 
             <div className="overflow-x-auto">
@@ -215,18 +214,17 @@ export default function TestingResults() {
             <div className="grid md:grid-cols-2 gap-8">
               <div>
                 <h3 className="text-lg font-semibold mb-3 text-[#2CB1A1]">Identified Challenges</h3>
-                <ul className="space-y-2 text-gray-200">
+                <ul className="space-y-2 text-gray-600">
                   <li>• Appliance vibrations (washing machine, dishwasher)</li>
                   <li>• Brief high-flow events (toilet flush)</li>
-                  <li>• Thermal expansion/contraction</li>
                   <li>• External vibrations (door slams, footsteps)</li>
                 </ul>
               </div>
 
               <div>
                 <h3 className="text-lg font-semibold mb-3 text-[#2CB1A1]">Solutions Implemented</h3>
-                <ul className="space-y-2 text-gray-200">
-                  <li>• 30-second persistence threshold</li>
+                <ul className="space-y-2 text-gray-600">
+                  <li>• 60-second persistence threshold</li>
                   <li>• Adaptive baseline learning</li>
                   <li>• RMS deviation instead of absolute values</li>
                   <li>• User-adjustable sensitivity settings</li>
@@ -235,7 +233,7 @@ export default function TestingResults() {
             </div>
 
             <div className="mt-8 p-4 bg-white/10 rounded-lg backdrop-blur-sm">
-              <p className="text-gray-200 text-sm leading-relaxed">
+              <p className="text-gray-600 text-sm leading-relaxed">
                 <strong>Key Finding:</strong> Persistence logic reduced false positives by 73% compared to simple threshold detection,
                 while maintaining 95% detection rate for genuine leak events.
               </p>
