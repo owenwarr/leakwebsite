@@ -1,8 +1,6 @@
 import React from "react";
 import { Card } from "@/components/ui/card";
 import { Calendar, CheckCircle, Clock } from "lucide-react";
-import ganttImg from "@/public/gantt-timeline.png";
-
 
 export default function Timeline() {
   const milestones = [
@@ -35,46 +33,44 @@ export default function Timeline() {
           <div className="relative">
             {/* Vertical line */}
             <div className="hidden md:block absolute left-1/2 transform -translate-x-1/2 w-1 h-full bg-gradient-to-b from-[#0E3A5D] via-[#2CB1A1] to-gray-300"></div>
-            
+
             {/* Timeline items */}
             <div className="space-y-12">
               {milestones.map((milestone, index) => {
                 const isLeft = index % 2 === 0;
                 const isCompleted = milestone.status === "completed";
-                
+
                 return (
-                  <div key={index} className={`relative flex items-center ${isLeft ? 'md:flex-row' : 'md:flex-row-reverse'}`}>
+                  <div key={index} className={`relative flex items-center ${isLeft ? "md:flex-row" : "md:flex-row-reverse"}`}>
                     {/* Timeline dot */}
-                    <div className="hidden md:flex absolute left-1/2 transform -translate-x-1/2 w-12 h-12 rounded-full border-4 border-white shadow-lg items-center justify-center z-10"
-                      style={{ background: isCompleted ? 'linear-gradient(135deg, #0E3A5D 0%, #2CB1A1 100%)' : '#E5E7EB' }}
+                    <div
+                      className="hidden md:flex absolute left-1/2 transform -translate-x-1/2 w-12 h-12 rounded-full border-4 border-white shadow-lg items-center justify-center z-10"
+                      style={{ background: isCompleted ? "linear-gradient(135deg, #0E3A5D 0%, #2CB1A1 100%)" : "#E5E7EB" }}
                     >
-                      {isCompleted ? (
-                        <CheckCircle className="w-6 h-6 text-white" />
-                      ) : (
-                        <Clock className="w-6 h-6 text-gray-400" />
-                      )}
+                      {isCompleted ? <CheckCircle className="w-6 h-6 text-white" /> : <Clock className="w-6 h-6 text-gray-400" />}
                     </div>
-                    
+
                     {/* Content card */}
-                    <div className={`w-full md:w-5/12 ${isLeft ? 'md:mr-auto md:pr-8' : 'md:ml-auto md:pl-8'}`}>
-                      <Card className={`p-6 border-2 transition-all hover:shadow-xl ${
-                        isCompleted ? 'border-[#2CB1A1] bg-gradient-to-br from-white to-[#2CB1A1]/5' : 'border-gray-200'
-                      }`}>
+                    <div className={`w-full md:w-5/12 ${isLeft ? "md:mr-auto md:pr-8" : "md:ml-auto md:pl-8"}`}>
+                      <Card
+                        className={`p-6 border-2 transition-all hover:shadow-xl ${
+                          isCompleted ? "border-[#2CB1A1] bg-gradient-to-br from-white to-[#2CB1A1]/5" : "border-gray-200"
+                        }`}
+                      >
                         <div className="flex items-start gap-3 mb-4 md:hidden">
-                          <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${
-                            isCompleted ? 'bg-gradient-to-br from-[#0E3A5D] to-[#2CB1A1]' : 'bg-gray-200'
-                          }`}>
-                            {isCompleted ? (
-                              <CheckCircle className="w-5 h-5 text-white" />
-                            ) : (
-                              <Clock className="w-5 h-5 text-gray-400" />
-                            )}
+                          <div
+                            className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${
+                              isCompleted ? "bg-gradient-to-br from-[#0E3A5D] to-[#2CB1A1]" : "bg-gray-200"
+                            }`}
+                          >
+                            {isCompleted ? <CheckCircle className="w-5 h-5 text-white" /> : <Clock className="w-5 h-5 text-gray-400" />}
                           </div>
                           <div>
-                            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium mb-2"
-                              style={{ 
-                                backgroundColor: isCompleted ? '#2CB1A1' : '#E5E7EB',
-                                color: isCompleted ? 'white' : '#6B7280'
+                            <div
+                              className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium mb-2"
+                              style={{
+                                backgroundColor: isCompleted ? "#2CB1A1" : "#E5E7EB",
+                                color: isCompleted ? "white" : "#6B7280"
                               }}
                             >
                               <Calendar className="w-3 h-3" />
@@ -82,29 +78,26 @@ export default function Timeline() {
                             </div>
                           </div>
                         </div>
-                        
+
                         <div className="hidden md:block">
-                          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium mb-2"
-                            style={{ 
-                              backgroundColor: isCompleted ? '#2CB1A1' : '#E5E7EB',
-                              color: isCompleted ? 'white' : '#6B7280'
+                          <div
+                            className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium mb-2"
+                            style={{
+                              backgroundColor: isCompleted ? "#2CB1A1" : "#E5E7EB",
+                              color: isCompleted ? "white" : "#6B7280"
                             }}
                           >
                             <Calendar className="w-3 h-3" />
                             {milestone.date}
                           </div>
                         </div>
-                        
-                        <h3 className="text-xl font-bold text-[#0E3A5D] mb-3">
-                          {milestone.phase}
-                        </h3>
-                        
+
+                        <h3 className="text-xl font-bold text-[#0E3A5D] mb-3">{milestone.phase}</h3>
+
                         <ul className="space-y-2">
                           {milestone.tasks.map((task, idx) => (
                             <li key={idx} className="flex items-start gap-2 text-sm text-gray-700">
-                              <div className={`w-1.5 h-1.5 rounded-full mt-1.5 flex-shrink-0 ${
-                                isCompleted ? 'bg-[#2CB1A1]' : 'bg-gray-400'
-                              }`}></div>
+                              <div className={`w-1.5 h-1.5 rounded-full mt-1.5 flex-shrink-0 ${isCompleted ? "bg-[#2CB1A1]" : "bg-gray-400"}`}></div>
                               {task}
                             </li>
                           ))}
@@ -120,10 +113,8 @@ export default function Timeline() {
 
         {/* Summary Stats */}
         <section className="mt-20">
-          <h2 className="text-3xl font-bold text-[#0E3A5D] mb-8 text-center">
-            Project Statistics
-          </h2>
-          
+          <h2 className="text-3xl font-bold text-[#0E3A5D] mb-8 text-center">Project Statistics</h2>
+
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
             <Card className="p-6 text-center border-2 border-gray-200 hover:border-[#2CB1A1] transition-all">
               <div className="text-4xl font-bold text-[#0E3A5D] mb-2">5</div>
@@ -147,34 +138,34 @@ export default function Timeline() {
           </div>
         </section>
 
-{/* Gantt Chart */}
-<section className="mt-20">
-  <Card className="p-8 bg-gray-50 border border-gray-200">
-    <div className="flex items-center justify-between gap-4 mb-6">
-      <h2 className="text-2xl font-bold text-[#0E3A5D]">Gantt Chart Overview</h2>
-      <a
-        href={ganttImg}
-        target="_blank"
-        rel="noreferrer"
-        className="text-sm font-semibold text-[#0E3A5D] hover:underline"
-      >
-        Open full size
-      </a>
-    </div>
+        {/* Gantt Chart (public image) */}
+        <section className="mt-20">
+          <Card className="p-8 bg-gray-50 border border-gray-200">
+            <div className="flex items-center justify-between gap-4 mb-6">
+              <h2 className="text-2xl font-bold text-[#0E3A5D]">Gantt Chart Overview</h2>
+              <a
+                href="/gantt-timeline.png"
+                target="_blank"
+                rel="noreferrer"
+                className="text-sm font-semibold text-[#0E3A5D] hover:underline"
+              >
+                Open full size
+              </a>
+            </div>
 
-    <div className="rounded-lg border bg-white overflow-hidden">
-      <img
-        src={ganttImg}
-        alt="Project timeline Gantt chart"
-        className="w-full h-auto block"
-      />
-    </div>
+            <div className="rounded-lg border bg-white overflow-hidden">
+              <img
+                src="/gantt-timeline.png"
+                alt="Project timeline Gantt chart"
+                className="w-full h-auto block"
+              />
+            </div>
 
-    <p className="text-xs text-gray-500 mt-3">
-      Note: chart reflects planned vs. actual dates through the latest iteration.
-    </p>
-  </Card>
-</section>
+            <p className="text-xs text-gray-500 mt-3">
+              Note: chart reflects planned vs. actual dates through the latest iteration.
+            </p>
+          </Card>
+        </section>
       </div>
     </div>
   );
