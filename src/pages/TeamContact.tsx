@@ -41,28 +41,28 @@ export default function TeamContact() {
   ];
 
 	  const handleSubmit = async (e: React.FormEvent) => {
-	  e.preventDefault();
+  e.preventDefault();
+  try {
+    const r = await fetch('/api/contact', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(formData),
+    });
 
-	  try {
-		const resp = await fetch("/api/contact", {
-		  method: "POST",
-		  headers: { "Content-Type": "application/json" },
-		  body: JSON.stringify(formData),
-		});
+    const data = await r.json().catch(() => ({}));
+    if (!r.ok) {
+      alert(`Send failed: ${data?.error || r.statusText}`);
+      return;
+    }
 
-		if (!resp.ok) {
-		  const data = await resp.json().catch(() => ({}));
-		  throw new Error(data?.error || "Failed to send");
-		}
+    setSubmitted(true);
+    setTimeout(() => setSubmitted(false), 3000);
+    setFormData({ name: "", email: "", subject: "", message: "" });
+  } catch (err: any) {
+    alert(`Network error: ${err?.message || err}`);
+  }
+};
 
-		setSubmitted(true);
-		setTimeout(() => setSubmitted(false), 4000);
-		setFormData({ name: "", email: "", subject: "", message: "" });
-	  } catch (err) {
-		console.error(err);
-		alert("Sorry — something went wrong sending your message.");
-	  }
-	};
 
 
   return (
