@@ -1,7 +1,5 @@
-// /api/contact.ts  — Node runtime serverless function (no @vercel/node)
-// If TypeScript complains about types, switch this to /api/contact.js.
-
-export default async function handler(req: any, res: any) {
+// api/contact.js  — plain Node serverless function (no Next, no extra deps)
+export default async function handler(req, res) {
   try {
     if (req.method !== 'POST') {
       res.statusCode = 405;
@@ -9,7 +7,6 @@ export default async function handler(req: any, res: any) {
       return res.end(JSON.stringify({ error: 'Method not allowed (use POST)' }));
     }
 
-    // --- Env checks ---
     const RESEND_API_KEY = process.env.RESEND_API_KEY;
     const CONTACT_TO_EMAIL = process.env.CONTACT_TO_EMAIL;
     const CONTACT_FROM_EMAIL =
@@ -24,21 +21,22 @@ export default async function handler(req: any, res: any) {
       return res.end(JSON.stringify({ error: 'Missing CONTACT_TO_EMAIL env var' }));
     }
 
-    // --- Parse body robustly (supports Vercel Node & various clients) ---
-    let body: any = req.body;
+    // Parse JSON body safely (works in Vercel Node functions)
+    let body = req.body;
     if (!body) {
-      const chunks: Uint8Array[] = [];
-      for await (const chunk of req) chunks.push(chunk);
+      const chunks = [];
+      for await (const c of req) chunks.push(c);
       const raw = Buffer.concat(chunks).toString('utf8');
       try { body = JSON.parse(raw); } catch { body = {}; }
     }
+
     const { name, email, subject, message } = body || {};
     if (!name || !email || !subject || !message) {
       res.statusCode = 400;
       return res.end(JSON.stringify({ error: 'Missing fields: name, email, subject, message' }));
     }
 
-    // --- Send via Resend REST API using fetch (no SDK needed) ---
+    // Send via Resend REST API (no SDK)
     const r = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: {
@@ -48,7 +46,7 @@ export default async function handler(req: any, res: any) {
       body: JSON.stringify({
         from: CONTACT_FROM_EMAIL,
         to: [CONTACT_TO_EMAIL],
-        reply_to: email, // REST API uses snake_case; Node SDK uses replyTo
+        reply_to: email, // REST uses snake_case
         subject: `[Contact] ${subject}`,
         text:
           `Name: ${name}\n` +
@@ -58,7 +56,7 @@ export default async function handler(req: any, res: any) {
       }),
     });
 
-    const json = await r.json().catch(() => ({} as any));
+    const json = await r.json().catch(() => ({}));
     if (!r.ok) {
       res.statusCode = r.status || 502;
       return res.end(JSON.stringify({ error: json?.message || JSON.stringify(json) }));
@@ -67,7 +65,7 @@ export default async function handler(req: any, res: any) {
     res.statusCode = 200;
     res.setHeader('Content-Type', 'application/json');
     return res.end(JSON.stringify({ ok: true }));
-  } catch (err: any) {
+  } catch (err) {
     console.error('contact error:', err);
     res.statusCode = 500;
     res.setHeader('Content-Type', 'application/json');
