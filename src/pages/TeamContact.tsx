@@ -40,7 +40,7 @@ export default function TeamContact() {
     }
   ];
 
-	  const handleSubmit = async (e: React.FormEvent) => {
+const handleSubmit = async (e: React.FormEvent) => {
   e.preventDefault();
   try {
     const r = await fetch('/api/contact', {
@@ -49,9 +49,14 @@ export default function TeamContact() {
       body: JSON.stringify(formData),
     });
 
-    const data = await r.json().catch(() => ({}));
+    // Try to read JSON, but fall back to raw text so we can SEE the error
+    const raw = await r.text();
+    let data: any = {};
+    try { data = raw ? JSON.parse(raw) : {}; } catch { /* not JSON */ }
+
     if (!r.ok) {
-      alert(`Send failed: ${data?.error || r.statusText}`);
+      const msg = data?.error || raw || r.statusText || 'Unknown error';
+      alert(`Send failed (${r.status}): ${msg}`);
       return;
     }
 
@@ -59,7 +64,7 @@ export default function TeamContact() {
     setTimeout(() => setSubmitted(false), 3000);
     setFormData({ name: "", email: "", subject: "", message: "" });
   } catch (err: any) {
-    alert(`Network error: ${err?.message || err}`);
+    alert(`Network error: ${err?.message || String(err)}`);
   }
 };
 
