@@ -1,5 +1,5 @@
 // src/pages/Documentation.tsx
-import React, { useCallback } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -11,6 +11,7 @@ import {
   Book,
   ExternalLink,
 } from "lucide-react";
+import JSZip from "jszip";
 
 /** ========= Types ========= */
 type DriveKind = "doc" | "slides" | "sheets" | "file";
@@ -21,126 +22,64 @@ type DocItem = {
   title: string;
   description: string;
   icon: IconType;
-  format: string;   // display string shown on the chip
-  size: string;     // display string
-  pages: string;    // display string
-  // Drive integration (optional per item):
+  format: string;
+  size: string;
+  pages: string;
   driveId?: string;
   driveKind?: DriveKind;
-  // Optional direct overrides:
-  downloadHref?: string;  // if provided, used for "Download" button
-  viewHref?: string;      // if provided, used for "Open in Drive"
-  exportFormat?: ExportFormat; // controls Drive export type (default per kind is PDF)
+  downloadHref?: string;
+  viewHref?: string;
+  exportFormat?: ExportFormat;
 };
 
 /** ========= Hard-coded BOM copied from PartsList ========= */
 type BomItem = {
   item: string;
   qty: number | string;
-  cost: string; // e.g. "$2.50", "$6", "50g"
+  cost: string;
   link: string;
 };
 
 const bomItems: BomItem[] = [
-  {
-    item: "FireBeetle ESP32-E IoT Microcontroller",
-    qty: 1,
-    cost: "$15",
-    link: "https://www.dfrobot.com/product-2195.html",
-  },
-  {
-    item: "ADXL335 Accelerometer Module",
-    qty: 1,
-    cost: "$2.50",
-    link: "https://www.amazon.com/gp/product/B094NHTPKR/ref=ox_sc_act_title_1?smid=A3KCMC2VCXFGL9&th=1",
-  },
-  {
-    item: "3.7V 4400mAh Li-Po Battery",
-    qty: 1,
-    cost: "$6",
-    link: "https://www.amazon.com/dp/B0BJKFJ227?ref=ppx_yo2ov_dt_b_fed_asin_title",
-  },
-  {
-    item: 'Velcro Strap (1.5" width)',
-    qty: 1,
-    cost: "$3",
-    link: "https://www.walmart.com/ip/VELCRO-USA-Inc-Industrial-Strength-Sticky-Back-Hook-Loop-Fastener-Strips-4-x-2-Black/19311524?wmlspartner=wlpa&selectedSellerId=0&wl13=1024&gclsrc=aw.ds&adid=2222222227719311524_117755028669_12420145346&wl0=&wl1=g&wl2=c&wl3=501107745824&wl4=pla-394283752452&wl5=9010995&wl6=&wl7=&wl8=&wl9=pla&wl10=8175035&wl11=local&wl12=19311524&veh=sem_LIA&gclsrc=aw.ds&gad_source=1&gad_campaignid=12420145346&gbraid=0AAAAADmfBIr0hAjuRk-897OnEGwUbASb6&gclid=Cj0KCQiA5abIBhCaARIsAM3-zFWFnHAZFaDSyb4AFpOj96Gnc3_zBIPU0c9SMaiis6qF6LBwc38WpIYaAhbTEALw_wcB",
-  },
-  {
-    item: "3D Printing Filament (PLA)",
-    qty: "50g",
-    cost: "$2.00",
-    link: "https://atomicfilament.com/products/black-pla-filament",
-  },
-  {
-    item: "Brass Screws M3 (6 pack)",
-    qty: 1,
-    cost: "$1.50",
-    link: "https://www.lowes.com/pd/Hillman-8-32-x-1-2-in-Slotted-Drive-Machine-Screws-4-Count/3035901?store=177&cm_mmc=shp-_-c-_-prd-_-hdw-_-ggl-_-PMAX_HDW_000_Priority_Item-_-3035901-_-local-_-0-_-0&gclsrc=aw.ds&gad_source=1&gad_campaignid=21797082881&gbraid=0AAAAAD2B2W-Pm1IYCwRHSMgDUhLmFWn6h&gclid=Cj0KCQiA5abIBhCaARIsAM3-zFXQcRKyo4vYyL2i9PrfmvSzaFWBRmEmIK_CIaQytMDb3yMwv6W8bLIaAsp3EALw_wcB",
-  },
-  {
-    item: "Resistors (2x 10kΩ)",
-    qty: 1,
-    cost: "$0.20",
-    link: "https://www.digikey.com/en/products/detail/stackpole-electronics-inc/CF14JT4K70/1830366?gclsrc=aw.ds&gad_source=1&gad_campaignid=20682878391&gbraid=0AAAAADrbLlgb8gJQ6J1kcKvIjfq2-lC1x&gclid=Cj0KCQiA5abIBhCaARIsAM3-zFVw2BcGZrDs85geLEBjB9UmZ9qvf2ijZBfmhUmqiZ3h1JbpAkflB2IaApwSEALw_wcB",
-  },
-  {
-    item: "Jumper Wires x10 (Male-Male)",
-    qty: 1,
-    cost: "$2",
-    link: "https://www.adafruit.com/product/1957?srsltid=AfmBOooGsyi4KqcGJqzcJNcyJdSbAl943DiR-bqoieDGuh1_y6BzBXvofE8",
-  },
-  {
-    item: "USB-C Cable (charging)",
-    qty: 1,
-    cost: "$6",
-    link: "https://www.amazon.com/Amazon-Basics-Charger-480Mbps-Certified/dp/B01GGKYN0A/ref=sr_1_7_ffob_sspa",
-  },
-  {
-    item: "Heat Shrink Tubing",
-    qty: "1ft",
-    cost: "$1.00",
-    link: "https://www.amazon.com/650pcs-Shrink-Tubing-innhom-Approved/dp/B07WWWPR2X",
-  },
+  { item: "FireBeetle ESP32-E IoT Microcontroller", qty: 1, cost: "$15", link: "https://www.dfrobot.com/product-2195.html" },
+  { item: "ADXL335 Accelerometer Module", qty: 1, cost: "$2.50", link: "https://www.amazon.com/gp/product/B094NHTPKR/ref=ox_sc_act_title_1?smid=A3KCMC2VCXFGL9&th=1" },
+  { item: "3.7V 4400mAh Li-Po Battery", qty: 1, cost: "$6", link: "https://www.amazon.com/dp/B0BJKFJ227?ref=ppx_yo2ov_dt_b_fed_asin_title" },
+  { item: 'Velcro Strap (1.5" width)', qty: 1, cost: "$3", link: "https://www.walmart.com/ip/VELCRO-USA-Inc-Industrial-Strength-Sticky-Back-Hook-Loop-Fastener-Strips-4-x-2-Black/19311524" },
+  { item: "3D Printing Filament (PLA)", qty: "50g", cost: "$2.00", link: "https://atomicfilament.com/products/black-pla-filament" },
+  { item: "Brass Screws M3 (6 pack)", qty: 1, cost: "$1.50", link: "https://www.lowes.com/pd/Hillman-8-32-x-1-2-in-Slotted-Drive-Machine-Screws-4-Count/3035901" },
+  { item: "Resistors (2x 10kΩ)", qty: 1, cost: "$0.20", link: "https://www.digikey.com/en/products/detail/stackpole-electronics-inc/CF14JT4K70/1830366" },
+  { item: "Jumper Wires x10 (Male-Male)", qty: 1, cost: "$2", link: "https://www.adafruit.com/product/1957" },
+  { item: "USB-C Cable (charging)", qty: 1, cost: "$6", link: "https://www.amazon.com/Amazon-Basics-Charger-480Mbps-Certified/dp/B01GGKYN0A" },
+  { item: "Heat Shrink Tubing", qty: "1ft", cost: "$1.00", link: "https://www.amazon.com/650pcs-Shrink-Tubing-innhom-Approved/dp/B07WWWPR2X" },
 ];
 
 /** ========= Helpers: Drive URLs + BOM CSV ========= */
-function driveViewUrl(id: string, kind: DriveKind = "doc") {
-  if (kind === "doc")
-    return `https://docs.google.com/document/d/${id}/view`;
-  if (kind === "slides")
-    return `https://docs.google.com/presentation/d/${id}/preview`;
-  if (kind === "sheets")
-    return `https://docs.google.com/spreadsheets/d/${id}/view`;
-  // Generic file:
+function driveViewUrl(id?: string, kind: DriveKind = "doc") {
+  if (!id) return undefined;
+  if (kind === "doc") return `https://docs.google.com/document/d/${id}/view`;
+  if (kind === "slides") return `https://docs.google.com/presentation/d/${id}/preview`;
+  if (kind === "sheets") return `https://docs.google.com/spreadsheets/d/${id}/view`;
   return `https://drive.google.com/file/d/${id}/view`;
 }
 
-function driveExportUrl(
-  id: string,
-  kind: DriveKind = "doc",
-  fmt: ExportFormat = "pdf"
-) {
+function driveExportUrl(id?: string, kind: DriveKind = "doc", fmt?: ExportFormat) {
+  if (!id) return undefined;
   const effectiveFmt =
-    fmt ??
-    (kind === "doc" ? "pdf" : kind === "slides" ? "pdf" : kind === "sheets" ? "pdf" : "pdf");
+    fmt ?? (kind === "doc" ? "pdf" : kind === "slides" ? "pdf" : kind === "sheets" ? "pdf" : "pdf");
 
   if (kind === "doc") {
-    // PDFs or DOCX
     if (effectiveFmt === "docx")
       return `https://docs.google.com/document/d/${id}/export?format=docx`;
     return `https://docs.google.com/document/d/${id}/export?format=pdf`;
   }
 
   if (kind === "slides") {
-    // PDFs or PPTX
     if (effectiveFmt === "pptx")
       return `https://docs.google.com/presentation/d/${id}/export/pptx`;
     return `https://docs.google.com/presentation/d/${id}/export/pdf`;
   }
 
   if (kind === "sheets") {
-    // PDFs or XLSX
     const f = effectiveFmt === "xlsx" ? "xlsx" : "pdf";
     return `https://docs.google.com/spreadsheets/d/${id}/export?format=${f}`;
   }
@@ -149,13 +88,15 @@ function driveExportUrl(
   return `https://drive.google.com/uc?export=download&id=${id}`;
 }
 
-function downloadBomCsv(filename = "bom.csv") {
+function generateBomCsv(filename = "bom.csv") {
   const headers = ["Item", "Quantity", "Est. Cost", "Link"];
   const rows = bomItems.map((b) => [b.item, String(b.qty), b.cost, b.link]);
   const esc = (v: string) => `"${v.replace(/"/g, '""')}"`;
-  const csv =
-    "\uFEFF" + [headers, ...rows].map((r) => r.map(esc).join(",")).join("\n");
-  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+  const csv = "\uFEFF" + [headers, ...rows].map((r) => r.map(esc).join(",")).join("\n");
+  return { filename, content: csv };
+}
+
+function triggerBlobDownload(blob: Blob, filename: string) {
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
@@ -166,51 +107,65 @@ function downloadBomCsv(filename = "bom.csv") {
   URL.revokeObjectURL(url);
 }
 
+function guessExt(doc: DocItem): string {
+  // Prefer explicit exportFormat, else infer from format label
+  if (doc.exportFormat) return doc.exportFormat;
+  const f = doc.format.toLowerCase();
+  if (f.includes("pptx")) return "pptx";
+  if (f.includes("word")) return "docx";
+  if (f.includes("xlsx") || f.includes("excel")) return "xlsx";
+  return "pdf";
+}
+
+function safeName(s: string) {
+  return s.replace(/[\/\\:*?"<>|]+/g, "").replace(/\s+/g, " ").trim();
+}
+
 /** ========= Component ========= */
 export default function Documentation() {
-  const handleBomDownload = useCallback(() => downloadBomCsv(), []);
+  const [zipping, setZipping] = useState(false);
+  const handleBomDownload = useCallback(() => {
+    const { filename, content } = generateBomCsv();
+    triggerBlobDownload(new Blob([content], { type: "text/csv;charset=utf-8;" }), filename);
+  }, []);
 
-  const documents: DocItem[] = [
+  const documents: DocItem[] = useMemo(() => [
     // --- Newly added blocks (before Final Project Report) ---
     {
       title: "Formal Project Proposal",
-      description:
-        "Initial scope, objectives, background research, and proposed approach.",
+      description: "Initial scope, objectives, background research, and proposed approach.",
       icon: FileText,
       format: "PDF",
       size: "460 KB",
       pages: "17 pages",
-      driveId: "15_Tfl6mgKyUBHBJX7zCnFbB299febH6H", // from your example link
+      driveId: "15_Tfl6mgKyUBHBJX7zCnFbB299febH6H",
       driveKind: "doc",
-      exportFormat: "pdf", // downloads as PDF
+      exportFormat: "pdf",
     },
     {
       title: "Ethics Presentation",
-      description:
-        "Slide deck covering ethical considerations, risks, and mitigations.",
+      description: "Slide deck covering ethical considerations, risks, and mitigations.",
       icon: Presentation,
       format: "PDF",
       size: "474 KB",
       pages: "18 pages",
       driveId: "1S1Z4VowbqSkpc1xgpE9Srcek8GLnmUqa",
       driveKind: "slides",
-      exportFormat: "pdf", // download as PDF (or "pptx" if you prefer PPTX)
+      exportFormat: "pdf",
     },
     {
       title: "Ethics Report",
-      description:
-        "Written analysis of ethical concerns, mitigations, and policy alignment.",
+      description: "Written analysis of ethical concerns, mitigations, and policy alignment.",
       icon: FileText,
       format: "Word (.docx)",
       size: "82 KB",
       pages: "3 pages",
-      downloadHref: "https://drive.google.com/uc?export=download&id=1hRQk2NyQBqJ2KpFXw_7XO0QPRm0Lf_Gz", // you provided this ID
-	  exportFormat: "DOCX"
+      downloadHref: "https://drive.google.com/uc?export=download&id=1hRQk2NyQBqJ2KpFXw_7XO0QPRm0Lf_Gz",
+      exportFormat: "docx",
     },
     {
       title: "Midterm Presentation",
-      description:
-        "Slide deck summarizing progress, prototype status, and next steps.",
+      description: "Slide deck summarizing progress, prototype status, and next steps.",
       icon: Presentation,
       format: "PDF",
       size: "644 KB",
@@ -221,8 +176,7 @@ export default function Documentation() {
     },
     {
       title: "Sustainability Presentation",
-      description:
-        "Environmental footprint, materials, energy, packaging, and EOL considerations.",
+      description: "Environmental footprint, materials, energy, packaging, and EOL considerations.",
       icon: Presentation,
       format: "PDF",
       size: "443 KB",
@@ -231,21 +185,20 @@ export default function Documentation() {
       driveKind: "slides",
       exportFormat: "pdf",
     },
-	{
+    {
       title: "Sustainability Report",
-      description:
-        "Written analysis of sustainability concerns, environemntal footprint, materials, energy, packaging, and EOL considerations.",
+      description: "Written analysis of sustainability concerns, environmental footprint, materials, energy, packaging, and EOL considerations.",
       icon: FileText,
       format: "Word (.docx)",
       size: "-",
       pages: "-",
-      downloadHref: "https://drive.google.com/uc?export=download&id=1hRQk2NyQBqJ2KpFXw_7XO0QPRm0Lf_Gz", // you provided this ID
+      downloadHref: "https://drive.google.com/uc?export=download&id=1hRQk2NyQBqJ2KpFXw_7XO0QPRm0Lf_Gz",
+      exportFormat: "docx",
     },
-    // --- Your original bundle ---
+    // --- Original bundle ---
     {
       title: "Final Project Report",
-      description:
-        "Comprehensive 60-page report covering all aspects of design, implementation, testing, and results",
+      description: "Comprehensive 60-page report covering all aspects of design, implementation, testing, and results",
       icon: FileText,
       format: "PDF",
       size: "8.5 MB",
@@ -256,36 +209,32 @@ export default function Documentation() {
     },
     {
       title: "Project Poster",
-      description:
-        "Academic poster summarizing project goals, methods, results, and conclusions for demonstration",
+      description: "Academic poster summarizing project goals, methods, results, and conclusions for demonstration",
       icon: Presentation,
       format: "PDF",
       size: "12 MB",
       pages: '36" x 48"',
-      driveId: "REPLACE_WITH_POSTER_FILE_ID", // if it's already a PDF file, set driveKind: "file"
-      driveKind: "file",
+      driveId: "REPLACE_WITH_POSTER_FILE_ID",
+      driveKind: "file", // if already PDF file in Drive
     },
     {
       title: "Presentation Slides",
-      description:
-        "PowerPoint presentation used for final project defense and demonstration",
+      description: "PowerPoint presentation used for final project defense and demonstration",
       icon: Presentation,
       format: "PPTX",
       size: "25 MB",
       pages: "45 slides",
       driveId: "REPLACE_WITH_FINAL_SLIDES_ID",
       driveKind: "slides",
-      exportFormat: "pptx", // download as PPTX
+      exportFormat: "pptx",
     },
     {
       title: "Bill of Materials (BOM)",
-      description:
-        "Complete parts list with quantities, costs, suppliers, and part numbers",
+      description: "Complete parts list with quantities, costs, suppliers, and part numbers",
       icon: FileSpreadsheet,
       format: "CSV/Excel",
       size: "3 KB",
       pages: "1 sheet",
-      // handled via custom CSV export (not Drive)
     },
     {
       title: "User Manual",
@@ -300,8 +249,7 @@ export default function Documentation() {
     },
     {
       title: "Technical Specification",
-      description:
-        "Detailed technical specifications, schematics, and design documentation",
+      description: "Detailed technical specifications, schematics, and design documentation",
       icon: FileText,
       format: "PDF",
       size: "5.1 MB",
@@ -310,37 +258,71 @@ export default function Documentation() {
       driveKind: "doc",
       exportFormat: "pdf",
     },
-  ];
+  ], []);
 
-  const repositories = [
-    {
-      name: "leak-detector-firmware",
-      description:
-        "ESP32 firmware source code, build instructions, and configuration files",
-      language: "C++",
-      url: "#",
-    },
-    {
-      name: "leak-detector-mobile",
-      description: "Flutter/Dart mobile application for Android and iOS",
-      language: "Dart",
-      url: "#",
-    },
-    {
-      name: "leak-detector-hardware",
-      description:
-        "CAD files, schematics, PCB layouts, and 3D printable enclosure models",
-      language: "STEP/STL",
-      url: "#",
-    },
-    {
-      name: "leak-detector-docs",
-      description:
-        "Project documentation, reports, presentations, and supplementary materials",
-      language: "Markdown",
-      url: "#",
-    },
-  ];
+  // Build per-item view/download URLs
+  const withLinks = useMemo(() => {
+    return documents.map((doc) => {
+      const viewUrl =
+        doc.viewHref ?? (doc.driveId ? driveViewUrl(doc.driveId, doc.driveKind) : undefined);
+      const downloadUrl =
+        doc.downloadHref ??
+        (doc.driveId ? driveExportUrl(doc.driveId, doc.driveKind, doc.exportFormat) : undefined);
+      return { ...doc, viewUrl, downloadUrl };
+    });
+  }, [documents]);
+
+  // ---- Download All as ZIP ----
+  const handleDownloadAll = useCallback(async () => {
+    if (zipping) return;
+    setZipping(true);
+    try {
+      const zip = new JSZip();
+      const errors: string[] = [];
+
+      // 1) Add BOM CSV
+      const bom = generateBomCsv("bom.csv");
+      zip.file(bom.filename, bom.content);
+
+      // 2) Add every document that has a downloadable URL
+      const tasks = withLinks.map(async (doc) => {
+        if (doc.title === "Bill of Materials (BOM)") {
+          // already added as CSV
+          return;
+        }
+        const url = doc.downloadUrl;
+        if (!url) return;
+        const ext = guessExt(doc);
+        const fname = `${safeName(doc.title)}.${ext}`;
+
+        try {
+          const res = await fetch(url, { credentials: "omit" });
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          // Some Drive endpoints can respond without CORS; if opaque, this will throw on .blob()
+          const blob = await res.blob();
+          zip.file(fname, blob);
+        } catch (e) {
+          console.warn("Failed to fetch:", doc.title, e);
+          errors.push(doc.title);
+        }
+      });
+
+      await Promise.allSettled(tasks);
+
+      const zipBlob = await zip.generateAsync({ type: "blob" });
+      triggerBlobDownload(zipBlob, "project-documents.zip");
+
+      if (errors.length) {
+        alert(
+          `Downloaded ZIP, but some files could not be fetched:\n\n- ${errors.join(
+            "\n- "
+          )}\n\nMake sure those Drive files are shared as "Anyone with the link (Viewer)".`
+        );
+      }
+    } finally {
+      setZipping(false);
+    }
+  }, [withLinks, zipping]);
 
   return (
     <div className="min-h-screen py-20">
@@ -360,19 +342,8 @@ export default function Documentation() {
           <h2 className="text-3xl font-bold text-[#0E3A5D] mb-8">Project Documents</h2>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {documents.map((doc, index) => {
+            {withLinks.map((doc, index) => {
               const Icon = doc.icon;
-
-              // Compute view + download URLs
-              const viewUrl =
-                doc.viewHref ??
-                (doc.driveId ? driveViewUrl(doc.driveId, doc.driveKind) : undefined);
-              const downloadUrl =
-                doc.downloadHref ??
-                (doc.driveId
-                  ? driveExportUrl(doc.driveId, doc.driveKind, doc.exportFormat)
-                  : undefined);
-
               const isBom = doc.title === "Bill of Materials (BOM)";
 
               return (
@@ -410,8 +381,8 @@ export default function Documentation() {
                       </Button>
                     ) : (
                       <>
-                        {viewUrl && (
-                          <a href={viewUrl} target="_blank" rel="noreferrer" className="w-1/2">
+                        {doc.viewUrl && (
+                          <a href={doc.viewUrl} target="_blank" rel="noreferrer" className="w-1/2">
                             <Button
                               variant="outline"
                               className="w-full border-[#0E3A5D] text-[#0E3A5D] hover:bg-[#0E3A5D] hover:text-white"
@@ -421,23 +392,20 @@ export default function Documentation() {
                             </Button>
                           </a>
                         )}
-                        {downloadUrl && (
-						  <a
-							href={downloadUrl}
-							// PDFs can open in a new tab; Office formats should download
-							target={(doc.exportFormat ?? "pdf") === "pdf" ? "_blank" : "_self"}
-							rel="noreferrer"
-							className="w-1/2"
-							// helps some browsers prefer download behavior
-							download={((doc.exportFormat ?? "pdf") !== "pdf") ? `${doc.title}.${doc.exportFormat}` : undefined}
-						  >
-							<Button className="w-full bg-[#2CB1A1] hover:bg-[#2CB1A1]/90">
-							  <Download className="w-4 h-4 mr-2" />
-							  Download {doc.exportFormat?.toUpperCase() ?? "PDF"}
-							</Button>
-						  </a>
-						)}
-
+                        {doc.downloadUrl && (
+                          <a
+                            href={doc.downloadUrl}
+                            target={(doc.exportFormat ?? "pdf") === "pdf" ? "_blank" : "_self"}
+                            rel="noreferrer"
+                            className="w-1/2"
+                            download={(doc.exportFormat ?? "pdf") !== "pdf" ? `${safeName(doc.title)}.${doc.exportFormat}` : undefined}
+                          >
+                            <Button className="w-full bg-[#2CB1A1] hover:bg-[#2CB1A1]/90">
+                              <Download className="w-4 h-4 mr-2" />
+                              Download {(doc.exportFormat ?? "pdf").toUpperCase()}
+                            </Button>
+                          </a>
+                        )}
                       </>
                     )}
                   </div>
@@ -461,11 +429,33 @@ export default function Documentation() {
           </div>
 
           <div className="space-y-4">
-            {repositories.map((repo, index) => (
-              <Card
-                key={index}
-                className="p-6 border-2 border-gray-200 hover:border-[#2CB1A1] transition-all"
-              >
+            {[
+              {
+                name: "leak-detector-firmware",
+                description: "ESP32 firmware source code, build instructions, and configuration files",
+                language: "C++",
+                url: "#",
+              },
+              {
+                name: "leak-detector-mobile",
+                description: "Flutter/Dart mobile application for Android and iOS",
+                language: "Dart",
+                url: "#",
+              },
+              {
+                name: "leak-detector-hardware",
+                description: "CAD files, schematics, PCB layouts, and 3D printable enclosure models",
+                language: "STEP/STL",
+                url: "#",
+              },
+              {
+                name: "leak-detector-docs",
+                description: "Project documentation, reports, presentations, and supplementary materials",
+                language: "Markdown",
+                url: "#",
+              },
+            ].map((repo, index) => (
+              <Card key={index} className="p-6 border-2 border-gray-200 hover:border-[#2CB1A1] transition-all">
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                   <div className="flex items-start gap-4">
                     <div className="w-12 h-12 rounded-xl bg-gray-100 flex items-center justify-center flex-shrink-0">
@@ -495,10 +485,19 @@ export default function Documentation() {
           <h2 className="text-3xl font-bold text-[#0E3A5D] mb-8">Quick Access</h2>
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <Card className="p-6 text-center border-2 border-gray-200 hover:border-[#2CB1A1] transition-all cursor-pointer">
+            <Card
+              onClick={handleDownloadAll}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && handleDownloadAll()}
+              className={`p-6 text-center border-2 border-gray-200 hover:border-[#2CB1A1] transition-all cursor-pointer select-none ${
+                zipping ? "opacity-60 pointer-events-none" : ""
+              }`}
+              title={zipping ? "Preparing ZIP..." : "Download all documents as a ZIP"}
+            >
               <Download className="w-10 h-10 text-[#2CB1A1] mx-auto mb-3" />
-              <h3 className="font-bold text-[#0E3A5D] mb-2">All Documents</h3>
-              <p className="text-xs text-gray-600">ZIP archive (52 MB)</p>
+              <h3 className="font-bold text-[#0E3A5D] mb-2">{zipping ? "Zipping..." : "All Documents"}</h3>
+              <p className="text-xs text-gray-600">ZIP archive</p>
             </Card>
 
             <Card className="p-6 text-center border-2 border-gray-200 hover:border-[#2CB1A1] transition-all cursor-pointer">
@@ -542,34 +541,16 @@ export default function Documentation() {
               <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6">
                 <h3 className="font-bold mb-3">What you can do:</h3>
                 <ul className="space-y-2 text-sm text-gray-200">
-                  <li className="flex items-start gap-2">
-                    <span>✓</span>
-                    <span>Commercial use: Build and sell products based on this design</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span>✓</span>
-                    <span>Modification: Adapt and improve the design for your needs</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span>✓</span>
-                    <span>Distribution: Share the project with others</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span>✓</span>
-                    <span>Private use: Use for personal or internal projects</span>
-                  </li>
+                  <li className="flex items-start gap-2"><span>✓</span><span>Commercial use</span></li>
+                  <li className="flex items-start gap-2"><span>✓</span><span>Modification</span></li>
+                  <li className="flex items-start gap-2"><span>✓</span><span>Distribution</span></li>
+                  <li className="flex items-start gap-2"><span>✓</span><span>Private use</span></li>
                 </ul>
 
                 <h3 className="font-bold mt-6 mb-3">What you must do:</h3>
                 <ul className="space-y-2 text-sm text-gray-200">
-                  <li className="flex items-start gap-2">
-                    <span>•</span>
-                    <span>Include the original license and copyright notice</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span>•</span>
-                    <span>Provide attribution to the original authors</span>
-                  </li>
+                  <li className="flex items-start gap-2"><span>•</span><span>Include license & copyright</span></li>
+                  <li className="flex items-start gap-2"><span>•</span><span>Provide attribution</span></li>
                 </ul>
               </div>
 
@@ -586,9 +567,7 @@ export default function Documentation() {
         {/* Citation */}
         <section className="mt-20">
           <Card className="p-8 bg-gray-50 border border-gray-200">
-            <h2 className="text-2xl font-bold text-[#0E3A5D] mb-4 text-center">
-              How to Cite This Work
-            </h2>
+            <h2 className="text-2xl font-bold text-[#0E3A5D] mb-4 text-center">How to Cite This Work</h2>
             <p className="text-sm text-gray-600 text-center mb-4">
               If you use this project in academic work, please cite as follows:
             </p>
