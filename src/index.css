@@ -1,0 +1,22 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* (Optional) your custom styles, layered so they play nice with Tailwind */
+@layer base {
+  :root {
+    color-scheme: light;
+  }
+  html, body, #root { height: 100%; }
+  body { @apply bg-white text-slate-900; }
+}
+
+@layer components {
+  /* example: a card shadow you can reuse */
+  .shadow-card { @apply shadow-lg border border-slate-200 rounded-2xl bg-white; }
+}
+
+@layer utilities {
+  /* example utility */
+  .container-narrow { @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8; }
+}
