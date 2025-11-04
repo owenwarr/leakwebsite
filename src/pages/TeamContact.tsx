@@ -40,12 +40,30 @@ export default function TeamContact() {
     }
   ];
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    setSubmitted(true);
-    setTimeout(() => setSubmitted(false), 3000);
-    setFormData({ name: "", email: "", subject: "", message: "" });
-  };
+	  const handleSubmit = async (e: React.FormEvent) => {
+	  e.preventDefault();
+
+	  try {
+		const resp = await fetch("/api/contact", {
+		  method: "POST",
+		  headers: { "Content-Type": "application/json" },
+		  body: JSON.stringify(formData),
+		});
+
+		if (!resp.ok) {
+		  const data = await resp.json().catch(() => ({}));
+		  throw new Error(data?.error || "Failed to send");
+		}
+
+		setSubmitted(true);
+		setTimeout(() => setSubmitted(false), 4000);
+		setFormData({ name: "", email: "", subject: "", message: "" });
+	  } catch (err) {
+		console.error(err);
+		alert("Sorry — something went wrong sending your message.");
+	  }
+	};
+
 
   return (
     <div className="min-h-screen py-20">
