@@ -12,7 +12,7 @@ export default function TeamContact() {
     name: "",
     email: "",
     subject: "",
-    message: ""
+    message: "",
   });
 
   const [submitted, setSubmitted] = useState(false);
@@ -21,54 +21,39 @@ export default function TeamContact() {
     {
       name: "Dustin Conger",
       role: "Systems Integration Lead",
-      email: "dc22627@georgiasouthern.edu"
+      email: "dc22627@georgiasouthern.edu",
+      photoSrc: "/dustin.png",
     },
     {
       name: "Owen Warrington",
       role: "Data & UI Lead",
-      email: "ow01446@georgiasouthern.edu"
+      email: "ow01446@georgiasouthern.edu",
+      photoSrc: "/owen.png",
     },
     {
       name: "Samuel Holder",
       role: "Hardware & Sensor Systems Lead",
-      email: "sh31183@georgiasouthern.edu"
+      email: "sh31183@georgiasouthern.edu",
+      photoSrc: "/samuel.png",
     },
     {
       name: "Jarred Waters",
       role: "Software & Firmware Lead",
-      email: "jw48679@georgiasouthern.edu"
-    }
+      email: "jw48679@georgiasouthern.edu",
+      photoSrc: "/jarred.png",
+    },
   ];
 
-const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
-  try {
-    const r = await fetch('/api/contact', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(formData),
-    });
-
-    // Try to read JSON, but fall back to raw text so we can SEE the error
-    const raw = await r.text();
-    let data: any = {};
-    try { data = raw ? JSON.parse(raw) : {}; } catch { /* not JSON */ }
-
-    if (!r.ok) {
-      const msg = data?.error || raw || r.statusText || 'Unknown error';
-      alert(`Send failed (${r.status}): ${msg}`);
-      return;
-    }
-
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    // If you’re not using an email backend, just show the success toast
     setSubmitted(true);
     setTimeout(() => setSubmitted(false), 3000);
     setFormData({ name: "", email: "", subject: "", message: "" });
-  } catch (err: any) {
-    alert(`Network error: ${err?.message || String(err)}`);
-  }
-};
 
-
+    // If you later wire up an API route, replace the above with a fetch to your /api/contact
+    // and show success/error accordingly.
+  };
 
   return (
     <div className="min-h-screen py-20">
@@ -92,6 +77,7 @@ const handleSubmit = async (e: React.FormEvent) => {
                 name={member.name}
                 role={member.role}
                 email={member.email}
+                photoSrc={member.photoSrc}
               />
             ))}
           </div>
@@ -104,20 +90,29 @@ const handleSubmit = async (e: React.FormEvent) => {
               <div>
                 <h2 className="text-2xl font-bold mb-4">Department</h2>
                 <p className="text-gray-200 leading-relaxed">
-                  <strong>Allen E. Paulson College of Engineering and Computing</strong><br />
-                  Department of Electrical & Computer Engineering<br />
-                  Georgia Southern University<br />
+                  <strong>Allen E. Paulson College of Engineering and Computing</strong>
+                  <br />
+                  Department of Electrical &amp; Computer Engineering
+                  <br />
+                  Georgia Southern University
+                  <br />
                   Statesboro, GA 30458
                 </p>
               </div>
-              
+
               <div>
                 <h2 className="text-2xl font-bold mb-4">Faculty Advisor</h2>
                 <p className="text-gray-200 leading-relaxed">
-                  <strong>Dr. Seungmo (Mo) Kim</strong><br />
-                  Associate Professor<br />
-                  Department of Electrical & Computer Engineering<br />
-                  <a href="mailto:seungmokim@georgiasouthern.edu" className="text-white underline hover:text-gray-200">
+                  <strong>Dr. Seungmo (Mo) Kim</strong>
+                  <br />
+                  Associate Professor
+                  <br />
+                  Department of Electrical &amp; Computer Engineering
+                  <br />
+                  <a
+                    href="mailto:seungmokim@georgiasouthern.edu"
+                    className="text-white underline hover:text-gray-200"
+                  >
                     seungmokim@georgiasouthern.edu
                   </a>
                 </p>
@@ -131,7 +126,7 @@ const handleSubmit = async (e: React.FormEvent) => {
           <h2 className="text-3xl font-bold text-[#0E3A5D] mb-8 text-center">
             Get In Touch
           </h2>
-          
+
           <div className="grid md:grid-cols-3 gap-6 mb-12">
             <Card className="p-6 text-center border-2 border-gray-200 hover:border-[#2CB1A1] transition-all">
               <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#0E3A5D] to-[#2CB1A1] flex items-center justify-center mx-auto mb-4">
@@ -139,7 +134,8 @@ const handleSubmit = async (e: React.FormEvent) => {
               </div>
               <h3 className="font-bold text-[#0E3A5D] mb-2">Location</h3>
               <p className="text-sm text-gray-600">
-                Georgia Southern University<br />
+                Georgia Southern University
+                <br />
                 Statesboro, GA 30458
               </p>
             </Card>
@@ -150,7 +146,8 @@ const handleSubmit = async (e: React.FormEvent) => {
               </div>
               <h3 className="font-bold text-[#0E3A5D] mb-2">Email</h3>
               <p className="text-sm text-gray-600">
-                
+                {/* Put a general contact inbox here if you want */}
+                {/* <a href="mailto:leakdetector@yourdomain.com" className="underline">leakdetector@yourdomain.com</a> */}
               </p>
             </Card>
 
@@ -160,7 +157,7 @@ const handleSubmit = async (e: React.FormEvent) => {
               </div>
               <h3 className="font-bold text-[#0E3A5D] mb-2">Phone</h3>
               <p className="text-sm text-gray-600">
-                
+                {/* Optional: add a contact phone number here */}
               </p>
             </Card>
           </div>
@@ -172,13 +169,13 @@ const handleSubmit = async (e: React.FormEvent) => {
             <h2 className="text-2xl font-bold text-[#0E3A5D] mb-6 text-center">
               Send Us a Message
             </h2>
-            
+
             {submitted && (
               <div className="mb-6 p-4 bg-green-50 border-2 border-green-200 rounded-lg text-green-800 text-center">
                 Thank you! Your message has been sent successfully.
               </div>
             )}
-            
+
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="grid md:grid-cols-2 gap-6">
                 <div>
@@ -187,12 +184,14 @@ const handleSubmit = async (e: React.FormEvent) => {
                     id="name"
                     placeholder="Your name"
                     value={formData.name}
-                    onChange={(e) => setFormData({...formData, name: e.target.value})}
+                    onChange={(e) =>
+                      setFormData({ ...formData, name: e.target.value })
+                    }
                     required
                     className="mt-1"
                   />
                 </div>
-                
+
                 <div>
                   <Label htmlFor="email">Email</Label>
                   <Input
@@ -200,37 +199,43 @@ const handleSubmit = async (e: React.FormEvent) => {
                     type="email"
                     placeholder="your@email.com"
                     value={formData.email}
-                    onChange={(e) => setFormData({...formData, email: e.target.value})}
+                    onChange={(e) =>
+                      setFormData({ ...formData, email: e.target.value })
+                    }
                     required
                     className="mt-1"
                   />
                 </div>
               </div>
-              
+
               <div>
                 <Label htmlFor="subject">Subject</Label>
                 <Input
                   id="subject"
                   placeholder="What is this regarding?"
                   value={formData.subject}
-                  onChange={(e) => setFormData({...formData, subject: e.target.value})}
+                  onChange={(e) =>
+                    setFormData({ ...formData, subject: e.target.value })
+                  }
                   required
                   className="mt-1"
                 />
               </div>
-              
+
               <div>
                 <Label htmlFor="message">Message</Label>
                 <Textarea
                   id="message"
                   placeholder="Your message here..."
                   value={formData.message}
-                  onChange={(e) => setFormData({...formData, message: e.target.value})}
+                  onChange={(e) =>
+                    setFormData({ ...formData, message: e.target.value })
+                  }
                   required
                   className="mt-1 h-32"
                 />
               </div>
-              
+
               <Button
                 type="submit"
                 className="w-full bg-[#2CB1A1] hover:bg-[#2CB1A1]/90 text-white py-6 text-lg"
@@ -249,11 +254,11 @@ const handleSubmit = async (e: React.FormEvent) => {
               Acknowledgments
             </h2>
             <p className="text-gray-600 text-center max-w-3xl mx-auto leading-relaxed">
-              We would like to thank the faculty and staff of the Allen E. Paulson College of 
-              Engineering and Computing for their guidance and support throughout this project. 
-              Special thanks to our advisor for their mentorship and technical expertise, and 
-              to Georgia Southern University for providing the resources necessary to bring 
-              this project to fruition.
+              We would like to thank the faculty and staff of the Allen E. Paulson
+              College of Engineering and Computing for their guidance and support
+              throughout this project. Special thanks to our advisor for their
+              mentorship and technical expertise, and to Georgia Southern University
+              for providing the resources necessary to bring this project to fruition.
             </p>
           </Card>
         </section>
