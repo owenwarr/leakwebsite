@@ -22,14 +22,14 @@ type DocItem = {
   title: string;
   description: string;
   icon: IconType;
-  format: string;
-  size: string;
-  pages: string;
+  format: string; // display-only
+  size: string;   // display-only
+  pages: string;  // display-only
   driveId?: string;
   driveKind?: DriveKind;
-  downloadHref?: string;
-  viewHref?: string;
-  exportFormat?: ExportFormat;
+  downloadHref?: string;   // absolute URL override
+  viewHref?: string;       // absolute URL override
+  exportFormat?: ExportFormat; // controls Drive export type
 };
 
 /** ========= Hard-coded BOM copied from PartsList ========= */
@@ -64,27 +64,20 @@ function driveViewUrl(id?: string, kind: DriveKind = "doc") {
 
 function driveExportUrl(id?: string, kind: DriveKind = "doc", fmt?: ExportFormat) {
   if (!id) return undefined;
-  const effectiveFmt =
-    fmt ?? (kind === "doc" ? "pdf" : kind === "slides" ? "pdf" : kind === "sheets" ? "pdf" : "pdf");
+  const effectiveFmt = fmt ?? (kind === "doc" ? "pdf" : kind === "slides" ? "pdf" : kind === "sheets" ? "pdf" : "pdf");
 
   if (kind === "doc") {
-    if (effectiveFmt === "docx")
-      return `https://docs.google.com/document/d/${id}/export?format=docx`;
+    if (effectiveFmt === "docx") return `https://docs.google.com/document/d/${id}/export?format=docx`;
     return `https://docs.google.com/document/d/${id}/export?format=pdf`;
   }
-
   if (kind === "slides") {
-    if (effectiveFmt === "pptx")
-      return `https://docs.google.com/presentation/d/${id}/export/pptx`;
+    if (effectiveFmt === "pptx") return `https://docs.google.com/presentation/d/${id}/export/pptx`;
     return `https://docs.google.com/presentation/d/${id}/export/pdf`;
   }
-
   if (kind === "sheets") {
     const f = effectiveFmt === "xlsx" ? "xlsx" : "pdf";
     return `https://docs.google.com/spreadsheets/d/${id}/export?format=${f}`;
   }
-
-  // Generic file download
   return `https://drive.google.com/uc?export=download&id=${id}`;
 }
 
@@ -120,14 +113,13 @@ function safeName(s: string) {
   return s.replace(/[\/\\:*?"<>|]+/g, "").replace(/\s+/g, " ").trim();
 }
 
-/** ========= Uniform Action Buttons (two-slot grid) ========= */
-// --- Replaces your current ActionButtons helper ---
+/** ========= Reusable action buttons (uniform layout) ========= */
 function ActionButtons({
   viewUrl,
   downloadUrl,
   downloadExt,          // "pdf" | "pptx" | "docx" | "xlsx"
   onBomDownload,
-  downloadFilename,     // for non-PDF downloads
+  downloadFilename,     // suggested filename for non-PDF
   showPlaceholders = true,
 }: {
   viewUrl?: string;
@@ -152,7 +144,6 @@ function ActionButtons({
 
   return (
     <div className="grid grid-cols-2 gap-3">
-      {/* Left: Open in Drive */}
       {viewUrl ? (
         <a href={viewUrl} target="_blank" rel="noreferrer" className="block w-full">
           <Button className={driveBtn}>
@@ -169,7 +160,6 @@ function ActionButtons({
         <div className="w-full" />
       )}
 
-      {/* Right: Download (plain label) */}
       {downloadUrl ? (
         <a
           href={downloadUrl}
@@ -200,9 +190,7 @@ function ActionButtons({
   );
 }
 
-
-
-/** ========= Component ========= */
+/** ========= Page Component ========= */
 export default function Documentation() {
   const [zipping, setZipping] = useState(false);
 
@@ -211,158 +199,143 @@ export default function Documentation() {
     triggerBlobDownload(new Blob([content], { type: "text/csv;charset=utf-8;" }), filename);
   }, []);
 
-  const documents: DocItem[] = useMemo(
-    () => [
-      // --- Newly added blocks (before Final Project Report) ---
-      {
-        title: "Formal Project Proposal",
-        description: "Initial scope, objectives, background research, and proposed approach.",
-        icon: FileText,
-        format: "PDF",
-        size: "460 KB",
-        pages: "17 pages",
-        driveId: "15_Tfl6mgKyUBHBJX7zCnFbB299febH6H",
-        driveKind: "doc",
-        exportFormat: "pdf",
-      },
-      {
-        title: "Ethics Presentation",
-        description: "Slide deck covering ethical considerations, risks, and mitigations.",
-        icon: Presentation,
-        format: "PDF",
-        size: "474 KB",
-        pages: "18 pages",
-        driveId: "1S1Z4VowbqSkpc1xgpE9Srcek8GLnmUqa",
-        driveKind: "slides",
-        exportFormat: "pdf",
-      },
-      {
-        title: "Ethics Report",
-        description: "Written analysis of ethical concerns, mitigations, and policy alignment.",
-        icon: FileText,
-        format: "Word (.docx)",
-        size: "82 KB",
-        pages: "3 pages",
-        downloadHref:
-          "https://drive.google.com/uc?export=download&id=1hRQk2NyQBqJ2KpFXw_7XO0QPRm0Lf_Gz",
-        exportFormat: "docx",
-      },
-      {
-        title: "Midterm Presentation",
-        description: "Slide deck summarizing progress, prototype status, and next steps.",
-        icon: Presentation,
-        format: "PDF",
-        size: "644 KB",
-        pages: "20 pages",
-        driveId: "1JfePofnCtRxtr0oK3yDUDOosV-BL_JAR",
-        driveKind: "slides",
-        exportFormat: "pdf",
-      },
-      {
-        title: "Sustainability Presentation",
-        description:
-          "Environmental footprint, materials, energy, packaging, and EOL considerations.",
-        icon: Presentation,
-        format: "PDF",
-        size: "443 KB",
-        pages: "21 pages",
-        driveId: "1ygLV5DHc4G7iC-gxCRub8RvQ0-aT197z",
-        driveKind: "slides",
-        exportFormat: "pdf",
-      },
-      {
-        title: "Sustainability Report",
-        description:
-          "Written analysis of sustainability concerns, environmental footprint, materials, energy, packaging, and EOL considerations.",
-        icon: FileText,
-        format: "Word (.docx)",
-        size: "-",
-        pages: "-",
-        downloadHref:
-          "https://drive.google.com/uc?export=download&id=1hRQk2NyQBqJ2KpFXw_7XO0QPRm0Lf_Gz",
-        exportFormat: "docx",
-      },
-      // --- Original bundle ---
-      {
-        title: "Final Project Report",
-        description:
-          "Comprehensive 60-page report covering all aspects of design, implementation, testing, and results",
-        icon: FileText,
-        format: "PDF",
-        size: "8.5 MB",
-        pages: "60 pages",
-        driveId: "REPLACE_WITH_FINAL_REPORT_DOC_ID",
-        driveKind: "doc",
-        exportFormat: "pdf",
-      },
-      {
-        title: "Project Poster",
-        description:
-          "Academic poster summarizing project goals, methods, results, and conclusions for demonstration",
-        icon: Presentation,
-        format: "PDF",
-        size: "12 MB",
-        pages: '36" x 48"',
-        driveId: "REPLACE_WITH_POSTER_FILE_ID",
-        driveKind: "file", // if already a PDF file in Drive
-      },
-      {
-        title: "Presentation Slides",
-        description:
-          "PowerPoint presentation used for final project defense and demonstration",
-        icon: Presentation,
-        format: "PPTX",
-        size: "25 MB",
-        pages: "45 slides",
-        driveId: "REPLACE_WITH_FINAL_SLIDES_ID",
-        driveKind: "slides",
-        exportFormat: "pptx",
-      },
-      {
-        title: "Bill of Materials (BOM)",
-        description:
-          "Complete parts list with quantities, costs, suppliers, and part numbers",
-        icon: FileSpreadsheet,
-        format: "CSV/Excel",
-        size: "3 KB",
-        pages: "1 sheet",
-      },
-      {
-        title: "User Manual",
-        description: "Installation, setup, and operation guide for end users",
-        icon: Book,
-        format: "PDF",
-        size: "2.3 MB",
-        pages: "16 pages",
-        driveId: "REPLACE_WITH_USER_MANUAL_DOC_ID",
-        driveKind: "doc",
-        exportFormat: "pdf",
-      },
-      {
-        title: "Technical Specification",
-        description:
-          "Detailed technical specifications, schematics, and design documentation",
-        icon: FileText,
-        format: "PDF",
-        size: "5.1 MB",
-        pages: "28 pages",
-        driveId: "REPLACE_WITH_TECH_SPEC_DOC_ID",
-        driveKind: "doc",
-        exportFormat: "pdf",
-      },
-    ],
-    []
-  );
+  const documents: DocItem[] = useMemo(() => [
+    // --- Blocks before Final Project Report ---
+    {
+      title: "Formal Project Proposal",
+      description: "Initial scope, objectives, background research, and proposed approach.",
+      icon: FileText,
+      format: "PDF",
+      size: "460 KB",
+      pages: "17 pages",
+      driveId: "15_Tfl6mgKyUBHBJX7zCnFbB299febH6H",
+      driveKind: "doc",
+      exportFormat: "pdf",
+    },
+    {
+      title: "Ethics Presentation",
+      description: "Slide deck covering ethical considerations, risks, and mitigations.",
+      icon: Presentation,
+      format: "PDF",
+      size: "474 KB",
+      pages: "18 pages",
+      driveId: "1S1Z4VowbqSkpc1xgpE9Srcek8GLnmUqa",
+      driveKind: "slides",
+      exportFormat: "pdf",
+    },
+    {
+      title: "Ethics Report",
+      description: "Written analysis of ethical concerns, mitigations, and policy alignment.",
+      icon: FileText,
+      format: "Word (.docx)",
+      size: "82 KB",
+      pages: "3 pages",
+      downloadHref: "https://drive.google.com/uc?export=download&id=1hRQk2NyQBqJ2KpFXw_7XO0QPRm0Lf_Gz",
+      exportFormat: "docx",
+    },
+    {
+      title: "Midterm Presentation",
+      description: "Slide deck summarizing progress, prototype status, and next steps.",
+      icon: Presentation,
+      format: "PDF",
+      size: "644 KB",
+      pages: "20 pages",
+      driveId: "1JfePofnCtRxtr0oK3yDUDOosV-BL_JAR",
+      driveKind: "slides",
+      exportFormat: "pdf",
+    },
+    {
+      title: "Sustainability Presentation",
+      description: "Environmental footprint, materials, energy, packaging, and EOL considerations.",
+      icon: Presentation,
+      format: "PDF",
+      size: "443 KB",
+      pages: "21 pages",
+      driveId: "1ygLV5DHc4G7iC-gxCRub8RvQ0-aT197z",
+      driveKind: "slides",
+      exportFormat: "pdf",
+    },
+    {
+      title: "Sustainability Report",
+      description: "Written analysis of sustainability concerns, environmental footprint, materials, energy, packaging, and EOL considerations.",
+      icon: FileText,
+      format: "Word (.docx)",
+      size: "-",
+      pages: "-",
+      downloadHref: "https://drive.google.com/uc?export=download&id=1hRQk2NyQBqJ2KpFXw_7XO0QPRm0Lf_Gz",
+      exportFormat: "docx",
+    },
+    // --- Original bundle ---
+    {
+      title: "Final Project Report",
+      description: "Comprehensive 60-page report covering all aspects of design, implementation, testing, and results",
+      icon: FileText,
+      format: "PDF",
+      size: "8.5 MB",
+      pages: "60 pages",
+      driveId: "REPLACE_WITH_FINAL_REPORT_DOC_ID",
+      driveKind: "doc",
+      exportFormat: "pdf",
+    },
+    {
+      title: "Project Poster",
+      description: "Academic poster summarizing project goals, methods, results, and conclusions for demonstration",
+      icon: Presentation,
+      format: "PDF",
+      size: "12 MB",
+      pages: '36" x 48"',
+      driveId: "REPLACE_WITH_POSTER_FILE_ID",
+      driveKind: "file",
+    },
+    {
+      title: "Presentation Slides",
+      description: "PowerPoint presentation used for final project defense and demonstration",
+      icon: Presentation,
+      format: "PPTX",
+      size: "25 MB",
+      pages: "45 slides",
+      driveId: "REPLACE_WITH_FINAL_SLIDES_ID",
+      driveKind: "slides",
+      exportFormat: "pptx",
+    },
+    {
+      title: "Bill of Materials (BOM)",
+      description: "Complete parts list with quantities, costs, suppliers, and part numbers",
+      icon: FileSpreadsheet,
+      format: "CSV/Excel",
+      size: "3 KB",
+      pages: "1 sheet",
+    },
+    {
+      title: "User Manual",
+      description: "Installation, setup, and operation guide for end users",
+      icon: Book,
+      format: "PDF",
+      size: "2.3 MB",
+      pages: "16 pages",
+      driveId: "REPLACE_WITH_USER_MANUAL_DOC_ID",
+      driveKind: "doc",
+      exportFormat: "pdf",
+    },
+    {
+      title: "Technical Specification",
+      description: "Detailed technical specifications, schematics, and design documentation",
+      icon: FileText,
+      format: "PDF",
+      size: "5.1 MB",
+      pages: "28 pages",
+      driveId: "REPLACE_WITH_TECH_SPEC_DOC_ID",
+      driveKind: "doc",
+      exportFormat: "pdf",
+    },
+  ], []);
 
   // Build per-item view/download URLs
   const withLinks = useMemo(() => {
     return documents.map((doc) => {
-      const viewUrl =
-        doc.viewHref ?? (doc.driveId ? driveViewUrl(doc.driveId, doc.driveKind) : undefined);
-      const downloadUrl =
-        doc.downloadHref ??
-        (doc.driveId ? driveExportUrl(doc.driveId, doc.driveKind, doc.exportFormat) : undefined);
-      return { ...doc, viewUrl, downloadUrl };
+      const viewUrl = doc.viewHref ?? (doc.driveId ? driveViewUrl(doc.driveId, doc.driveKind) : undefined);
+      const downloadUrl = doc.downloadHref ?? (doc.driveId ? driveExportUrl(doc.driveId, doc.driveKind, doc.exportFormat) : undefined);
+      return { ...doc, viewUrl, downloadUrl } as DocItem & { viewUrl?: string; downloadUrl?: string };
     });
   }, [documents]);
 
@@ -381,11 +354,10 @@ export default function Documentation() {
       // 2) Add every document that has a downloadable URL
       const tasks = withLinks.map(async (doc) => {
         if (doc.title === "Bill of Materials (BOM)") return; // already added
-        const url = doc.downloadUrl;
+        const url = (doc as any).downloadUrl as string | undefined;
         if (!url) return;
         const ext = guessExt(doc);
         const fname = `${safeName(doc.title)}.${ext}`;
-
         try {
           const res = await fetch(url, { credentials: "omit" });
           if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -435,10 +407,8 @@ export default function Documentation() {
             {withLinks.map((doc, index) => {
               const Icon = doc.icon;
               const isBom = doc.title === "Bill of Materials (BOM)";
-              const downloadLabel = isBom ? "csv" : (doc.exportFormat ?? "pdf");
-              const downloadFilename = !isBom && downloadLabel !== "pdf"
-                ? `${safeName(doc.title)}.${downloadLabel}`
-                : undefined;
+              const ext = (doc.exportFormat ?? "pdf").toLowerCase();
+              const isPdf = ext === "pdf";
 
               return (
                 <Card
@@ -463,13 +433,14 @@ export default function Documentation() {
 
                   <p className="text-sm text-gray-600 mb-4 leading-relaxed">{doc.description}</p>
 
-                  {/* Uniform two-slot buttons */}
+                  {/* Uniform action buttons */}
                   <ActionButtons
-                    viewUrl={!isBom ? doc.viewUrl : undefined}
-                    downloadUrl={!isBom ? doc.downloadUrl : undefined}
-                    downloadLabel={!isBom ? downloadLabel : undefined}
-                    downloadFilename={downloadFilename}
+                    viewUrl={(doc as any).viewUrl}
+                    downloadUrl={isBom ? undefined : (doc as any).downloadUrl}
+                    downloadExt={ext}
                     onBomDownload={isBom ? handleBomDownload : undefined}
+                    downloadFilename={!isPdf ? `${safeName(doc.title)}.${ext}` : undefined}
+                    showPlaceholders={true}
                   />
                 </Card>
               );
@@ -494,8 +465,7 @@ export default function Documentation() {
             {[
               {
                 name: "leak-detector-firmware",
-                description:
-                  "ESP32 firmware source code, build instructions, and configuration files",
+                description: "ESP32 firmware source code, build instructions, and configuration files",
                 language: "C++",
                 url: "#",
               },
@@ -507,23 +477,18 @@ export default function Documentation() {
               },
               {
                 name: "leak-detector-hardware",
-                description:
-                  "CAD files, schematics, PCB layouts, and 3D printable enclosure models",
+                description: "CAD files, schematics, PCB layouts, and 3D printable enclosure models",
                 language: "STEP/STL",
                 url: "#",
               },
               {
                 name: "leak-detector-docs",
-                description:
-                  "Project documentation, reports, presentations, and supplementary materials",
+                description: "Project documentation, reports, presentations, and supplementary materials",
                 language: "Markdown",
                 url: "#",
               },
             ].map((repo, index) => (
-              <Card
-                key={index}
-                className="p-6 border-2 border-gray-200 hover:border-[#2CB1A1] transition-all"
-              >
+              <Card key={index} className="p-6 border-2 border-gray-200 hover:border-[#2CB1A1] transition-all">
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                   <div className="flex items-start gap-4">
                     <div className="w-12 h-12 rounded-xl bg-gray-100 flex items-center justify-center flex-shrink-0">
@@ -564,9 +529,7 @@ export default function Documentation() {
               title={zipping ? "Preparing ZIP..." : "Download all documents as a ZIP"}
             >
               <Download className="w-10 h-10 text-[#2CB1A1] mx-auto mb-3" />
-              <h3 className="font-bold text-[#0E3A5D] mb-2">
-                {zipping ? "Zipping..." : "All Documents"}
-              </h3>
+              <h3 className="font-bold text-[#0E3A5D] mb-2">{zipping ? "Zipping..." : "All Documents"}</h3>
               <p className="text-xs text-gray-600">ZIP archive</p>
             </Card>
 
