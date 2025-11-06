@@ -115,7 +115,7 @@ export default function CloudData() {
 
         {/* Security & Privacy */}
         <section className="mb-20">
-          <Card className="p-8 bg-[#0E3A5D] text-white">
+          <Card className="p-8 bg-[#0E3A5D] text-[#0E3A5D]">
             <div className="grid lg:grid-cols-2 gap-8">
               <div>
                 <Shield className="w-12 h-12 mb-4 opacity-80" />

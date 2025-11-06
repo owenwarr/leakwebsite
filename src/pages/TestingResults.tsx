@@ -208,7 +208,7 @@ export default function TestingResults() {
 
         {/* False Positive Mitigation */}
         <section>
-          <Card className="p-8 bg-[#0E3A5D] text-white">
+          <Card className="p-8 bg-[#0E3A5D] text-[#0E3A5D]">
             <h2 className="text-2xl font-bold mb-6">False Positive Mitigation Strategy</h2>
 
             <div className="grid md:grid-cols-2 gap-8">

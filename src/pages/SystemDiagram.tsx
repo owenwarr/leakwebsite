@@ -124,7 +124,7 @@ export default function SystemDiagram() {
 
         {/* Technical Notes */}
         <section>
-          <Card className="p-8 bg-[#0E3A5D] text-white">
+          <Card className="p-8 bg-[#0E3A5D] text-[#0E3A5D]">
             <h2 className="text-2xl font-bold mb-6">Technical Implementation Notes</h2>
             
             <div className="grid md:grid-cols-2 gap-8">

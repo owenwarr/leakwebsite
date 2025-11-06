@@ -48,7 +48,7 @@ export default function ClampEnclosure() {
               <Download className="w-4 h-4 mr-2" />
               Download STL Files
             </Button>
-            <Button variant="outline" className="border-[#0E3A5D] text-[#0E3A5D] hover:bg-[#0E3A5D] hover:text-white">
+            <Button className="bg-[#2CB1A1] hover:bg-[#2CB1A1]/90">
               <Download className="w-4 h-4 mr-2" />
               Download STEP Files
             </Button>
@@ -238,7 +238,7 @@ export default function ClampEnclosure() {
 
         {/* Design Notes */}
         <section className="mt-12">
-          <Card className="p-8 bg-[#0E3A5D] text-white">
+          <Card className="p-8 bg-[#0E3A5D] text-[#0E3A5D]">
             <h3 className="text-2xl font-bold mb-6">Design Considerations</h3>
             <div className="grid md:grid-cols-2 gap-6">
               <div>

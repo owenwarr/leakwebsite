@@ -100,7 +100,7 @@ export default function Sustainability() {
 
         {/* Environmental Impact */}
         <section className="mb-20">
-          <Card className="p-8 bg-[#0E3A5D] text-white">
+          <Card className="p-8 bg-[#0E3A5D] text-[#0E3A5D]">
             <h2 className="text-2xl font-bold mb-6">
               Environmental Impact Assessment
             </h2>
