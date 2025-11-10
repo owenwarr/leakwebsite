@@ -261,7 +261,7 @@ export default function Documentation() {
       icon: FileText,
       format: "Word (.docx)",
       size: "29.4 KB",
-      pages: "3",
+      pages: "3 pages",
       downloadHref: "https://drive.google.com/uc?export=download&id=1LioDScJSDcVE7i7PTQx4he9KTxADuS_1",
       exportFormat: "docx",
     },
