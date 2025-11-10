@@ -12,7 +12,7 @@ export default function Timeline() {
     { phase: "Enclosure & Assembly", date: "Oct 2025", status: "completed", tasks: ["3D printing", "Assembly jigs", "Velcro mounting", "First prototype"] },
     { phase: "Testing & Validation", date: "Oct 2025", status: "completed", tasks: ["Baseline testing", "Leak simulation", "False positive analysis", "Battery profiling"] },
     { phase: "Poster & Demo", date: "Nov 2025", status: "completed", tasks: ["Poster design", "Demo preparation", "Documentation", "Final presentation"] },
-    { phase: "Future Enhancements", date: "Dec 2025+", status: "planned", tasks: ["Deep sleep implementation", "iOS app", "OTA updates", "Multi-axis sensing"] }
+    { phase: "Future Enhancements", date: "Dec 2025+", status: "planned", tasks: ["Deep sleep implementation", "iOS app", "OTA updates"] }
   ];
 
   return (
