@@ -12,23 +12,57 @@ type TestRow = {
 };
 
 export default function TestingResults() {
+  // Scenario-level protocol (matches how you're actually testing)
   const testProtocol: string[] = [
-    "Establish baseline with no water flow (idle state)",
-    "Record normal usage patterns (faucet, toilet, shower)",
-    "Simulate various leak scenarios (drip, stream, burst)",
-    "Test false positive scenarios (appliances, vibrations)",
-    "Verify persistence logic effectiveness",
-    "Measure battery consumption over extended periods",
+    "Collect 10-second windows of vibration data for each scenario",
+    "Build baseline from multiple 'water off' runs on the same pipe",
+    "Run 5× very slow drip (leak) scenarios on identical hardware and mounting",
+    "Run 3× half-blast and 5× full-blast normal-use scenarios",
+    "Classify scenarios using RMS-based case logic; only 'drip' is treated as a leak alert",
+    "Check for false alerts on normal-use flows and missed alerts on drip runs"
   ];
 
+  // Based on your aggregated data:
+  // Off:   30 windows, RMS ≈ 0.0164–0.0172
+  // Drip:  30 windows, RMS ≈ 0.0164–0.0172 (distinguished via persistence/pattern)
+  // Half:  18 windows, RMS ≈ 0.0175–0.0210
+  // Full:  30 windows, RMS ≈ 0.0222–0.0349
+  //
+  // Scenario-level summary (what we surface on the site):
+  // - 5× Off  -> all "no leak" (TN)
+  // - 5× Drip -> 4 alerts (TP), 1 missed (FN)
+  // - 3× Half -> all "no leak" (TN)
+  // - 5× Full -> all "no leak" (TN)
+  //
+  // ONLY the drip condition is configured to send notifications.
   const testResults: TestRow[] = [
-    { scenario: "Idle Baseline", rms: "0.02 g", result: "success", notes: "Stable baseline established across 24-hour period" },
-    { scenario: "Faucet Use", rms: "0.08-0.12 g", result: "success", notes: "Correctly identified as normal, no false alert" },
-    { scenario: "Toilet Flush", rms: "0.15-0.25 g", result: "success", notes: "Brief spike, correctly ignored by persistence logic" },
-    { scenario: "Slow Drip Leak", rms: "0.05-0.08 g", result: "detected", notes: "Detected after 45 seconds persistence" },
-    { scenario: "Stream Leak", rms: "0.18-0.30 g", result: "detected", notes: "Immediate detection within 30 seconds" },
-    { scenario: "Washing Machine", rms: "0.20-0.35 g", result: "warning", notes: "Initial false positive; resolved with baseline adjustment" },
-    { scenario: "Dishwasher", rms: "0.12-0.22 g", result: "success", notes: "No false alert after baseline learning" },
+    {
+      scenario: "Idle / Water Off",
+      rms: "0.0164–0.0172",
+      result: "success",
+      notes: "Baseline stable across 5 runs (30 windows); no leak alerts triggered."
+    },
+    {
+      scenario: "Very Slow Drip (Leak Scenario)",
+      rms: "0.0165–0.0172",
+      result: "detected",
+      notes:
+        "Clamp-on leak condition correctly triggered notifications in 4 of 5 runs after ~60–120s persistence; 1 borderline run missed."
+    },
+    {
+      scenario: "Half Blast (Normal Use)",
+      rms: "0.0175–0.0210",
+      result: "success",
+      notes:
+        "3/3 runs correctly classified as normal usage; no leak notifications."
+    },
+    {
+      scenario: "Full Blast (Normal Use)",
+      rms: "0.0222–0.0349",
+      result: "success",
+      notes:
+        "5/5 runs correctly classified as normal usage; no leak notifications despite higher RMS."
+    }
   ];
 
   const getResultIcon = (result: ResultType) => {
@@ -44,24 +78,49 @@ export default function TestingResults() {
     }
   };
 
+  // Confusion matrix numbers (scenario-level, not per-window):
+  // Actual leak scenarios: 5 drip runs
+  //   -> 4 predicted "leak" (TP)
+  //   -> 1 predicted "no leak" (FN)
+  // Actual no-leak scenarios: 5 off + 3 half + 5 full = 13 runs
+  //   -> 0 predicted "leak" (FP)
+  //   -> 13 predicted "no leak" (TN)
+  const TP = 4;
+  const FN = 1;
+  const FP = 0;
+  const TN = 13;
+  const total = TP + TN + FP + FN;
+
+  const overallAccuracy = ((TP + TN) / total * 100).toFixed(1); // 94.4%
+  const leakRecall = (TP / (TP + FN) * 100).toFixed(1); // 80.0%
+  const falsePositiveRate = ((FP / (FP + TN || 1)) * 100).toFixed(1); // 0.0%
+
   return (
     <div className="min-h-screen py-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="text-center mb-16">
-          <h1 className="text-4xl sm:text-5xl font-bold text-[#0E3A5D] mb-4">Testing & Results</h1>
+          <h1 className="text-4xl sm:text-5xl font-bold text-[#0E3A5D] mb-4">
+            Testing &amp; Results
+          </h1>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Comprehensive evaluation of detection accuracy and system performance
+            Scenario-driven evaluation of RMS-based detection with alerts only
+            for persistent drip behavior.
           </p>
         </div>
 
         {/* Test Protocol */}
         <section className="mb-20">
           <Card className="p-8 border-2 border-[#2CB1A1] bg-gradient-to-br from-white to-[#2CB1A1]/5">
-            <h2 className="text-2xl font-bold text-[#0E3A5D] mb-6">Testing Protocol</h2>
+            <h2 className="text-2xl font-bold text-[#0E3A5D] mb-6">
+              Testing Protocol
+            </h2>
             <p className="text-gray-600 mb-6 leading-relaxed">
-              Our testing methodology involved systematic evaluation across multiple scenarios to validate detection accuracy, assess
-              false positive rates, and measure system responsiveness.
+              We collected vibration data at the pipe clamp in controlled
+              scenarios to validate that the firmware&apos;s case-based logic:
+              (1) remains quiet for normal usage, and (2) reliably flags slow,
+              continuous drip behavior as a leak. Only the drip condition is
+              configured to send notifications in this stage of testing.
             </p>
 
             <div className="space-y-3">
@@ -77,33 +136,54 @@ export default function TestingResults() {
           </Card>
         </section>
 
-        {/* Test Results Table */}
+        {/* Scenario Summary Table */}
         <section className="mb-20">
-          <h2 className="text-3xl font-bold text-[#0E3A5D] mb-8">Test Results Summary</h2>
+          <h2 className="text-3xl font-bold text-[#0E3A5D] mb-8">
+            Scenario Results Summary
+          </h2>
 
           <Card className="overflow-hidden border-2 border-gray-600">
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead className="bg-[#0E3A5D] text-white">
                   <tr>
-                    <th className="px-6 py-4 text-left font-semibold">Scenario</th>
-                    <th className="px-6 py-4 text-left font-semibold">RMS Range</th>
-                    <th className="px-6 py-4 text-left font-semibold">Result</th>
-                    <th className="px-6 py-4 text-left font-semibold">Notes</th>
+                    <th className="px-6 py-4 text-left font-semibold">
+                      Scenario
+                    </th>
+                    <th className="px-6 py-4 text-left font-semibold">
+                      Observed RMS Range
+                    </th>
+                    <th className="px-6 py-4 text-left font-semibold">
+                      Result
+                    </th>
+                    <th className="px-6 py-4 text-left font-semibold">
+                      Notes
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-600">
                   {testResults.map((test, index) => (
-                    <tr key={index} className="hover:bg-gray-50 transition-colors">
-                      <td className="px-6 py-4 font-medium text-gray-900">{test.scenario}</td>
-                      <td className="px-6 py-4 text-gray-600 font-mono text-sm">{test.rms}</td>
+                    <tr
+                      key={index}
+                      className="hover:bg-gray-50 transition-colors"
+                    >
+                      <td className="px-6 py-4 font-medium text-gray-900">
+                        {test.scenario}
+                      </td>
+                      <td className="px-6 py-4 text-gray-600 font-mono text-sm">
+                        {test.rms}
+                      </td>
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-2">
                           {getResultIcon(test.result)}
-                          <span className="capitalize text-sm font-medium">{test.result}</span>
+                          <span className="capitalize text-sm font-medium">
+                            {test.result}
+                          </span>
                         </div>
                       </td>
-                      <td className="px-6 py-4 text-gray-600 text-sm">{test.notes}</td>
+                      <td className="px-6 py-4 text-gray-600 text-sm">
+                        {test.notes}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -114,31 +194,55 @@ export default function TestingResults() {
 
         {/* Performance Metrics */}
         <section className="mb-20">
-          <h2 className="text-3xl font-bold text-[#0E3A5D] mb-8">Performance Metrics</h2>
+          <h2 className="text-3xl font-bold text-[#0E3A5D] mb-8">
+            Performance Metrics (Scenario-Level)
+          </h2>
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
             <Card className="p-6 border-2 border-gray-600 hover:border-[#2CB1A1] transition-all text-center">
-              <div className="text-4xl font-bold text-[#0E3A5D] mb-2">95%</div>
-              <div className="text-sm text-gray-600">Detection Accuracy</div>
-              <div className="text-xs text-gray-500 mt-2">True positives on actual leaks</div>
+              <div className="text-4xl font-bold text-[#0E3A5D] mb-2">
+                {overallAccuracy}%
+              </div>
+              <div className="text-sm text-gray-600">
+                Overall Classification Accuracy
+              </div>
+              <div className="text-xs text-gray-500 mt-2">
+                {TP + TN} of {total} scenarios correctly labeled
+              </div>
             </Card>
 
             <Card className="p-6 border-2 border-gray-600 hover:border-[#2CB1A1] transition-all text-center">
-              <div className="text-4xl font-bold text-[#0E3A5D] mb-2">12%</div>
-              <div className="text-sm text-gray-600">False Positive Rate</div>
-              <div className="text-xs text-gray-500 mt-2">Reduced with persistence logic</div>
+              <div className="text-4xl font-bold text-[#0E3A5D] mb-2">
+                {leakRecall}%
+              </div>
+              <div className="text-sm text-gray-600">
+                Drip Leak Detection (Recall)
+              </div>
+              <div className="text-xs text-gray-500 mt-2">
+                {TP} / {TP + FN} drip scenarios triggered an alert
+              </div>
             </Card>
 
             <Card className="p-6 border-2 border-gray-600 hover:border-[#2CB1A1] transition-all text-center">
-              <div className="text-4xl font-bold text-[#0E3A5D] mb-2">~180s</div>
-              <div className="text-sm text-gray-600">Avg. Detection Time</div>
-              <div className="text-xs text-gray-500 mt-2">For sustained anomalies</div>
+              <div className="text-4xl font-bold text-[#0E3A5D] mb-2">
+                {falsePositiveRate}%
+              </div>
+              <div className="text-sm text-gray-600">
+                False Positive Rate
+              </div>
+              <div className="text-xs text-gray-500 mt-2">
+                0 leak alerts on {TN} normal-use / idle scenarios
+              </div>
             </Card>
 
             <Card className="p-6 border-2 border-gray-600 hover:border-[#2CB1A1] transition-all text-center">
-              <div className="text-4xl font-bold text-[#0E3A5D] mb-2">0</div>
-              <div className="text-sm text-gray-600">False Negatives</div>
-              <div className="text-xs text-gray-500 mt-2">All leaks detected in tests</div>
+              <div className="text-4xl font-bold text-[#0E3A5D] mb-2">60–120s</div>
+              <div className="text-sm text-gray-600">
+                Typical Drip Detection Time
+              </div>
+              <div className="text-xs text-gray-500 mt-2">
+                Based on persistence across multiple 10s windows
+              </div>
             </Card>
           </div>
         </section>
@@ -146,54 +250,74 @@ export default function TestingResults() {
         {/* Confusion Matrix */}
         <section className="mb-20">
           <Card className="p-8 bg-gray-50 border border-gray-600">
-            <h2 className="text-2xl font-bold text-[#0E3A5D] mb-6">Confusion Matrix (Preliminary)</h2>
+            <h2 className="text-2xl font-bold text-[#0E3A5D] mb-6">
+              Confusion Matrix (Leak vs. No Leak)
+            </h2>
 
             <div className="overflow-x-auto">
               <table className="w-full max-w-2xl mx-auto border-2 border-gray-300">
                 <thead>
                   <tr>
                     <th className="border-2 border-gray-300 p-4 bg-white"></th>
-                    <th colSpan={2} className="border-2 border-gray-300 p-4 bg-[#0E3A5D] text-white font-bold">
+                    <th
+                      colSpan={2}
+                      className="border-2 border-gray-300 p-4 bg-[#0E3A5D] text-white font-bold"
+                    >
                       Predicted
                     </th>
                   </tr>
                   <tr>
                     <th className="border-2 border-gray-300 p-4 bg-white"></th>
-                    <th className="border-2 border-gray-300 p-4 bg-gray-100 font-semibold">Leak</th>
-                    <th className="border-2 border-gray-300 p-4 bg-gray-100 font-semibold">No Leak</th>
+                    <th className="border-2 border-gray-300 p-4 bg-gray-100 font-semibold">
+                      Leak (Drip Alert)
+                    </th>
+                    <th className="border-2 border-gray-300 p-4 bg-gray-100 font-semibold">
+                      No Leak
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr>
-                    <th rowSpan={2} className="border-2 border-gray-300 p-4 bg-[#0E3A5D] text-white font-bold">
+                    <th
+                      rowSpan={2}
+                      className="border-2 border-gray-300 p-4 bg-[#0E3A5D] text-white font-bold"
+                    >
                       Actual
                     </th>
                   </tr>
                   <tr></tr>
                   <tr>
-                    <th className="border-2 border-gray-300 p-4 bg-gray-100 font-semibold">Leak</th>
+                    <th className="border-2 border-gray-300 p-4 bg-gray-100 font-semibold">
+                      Leak (Drip)
+                    </th>
                     <td className="border-2 border-gray-300 p-4 text-center bg-green-50 font-bold text-green-700">
-                      19
+                      {TP}
                       <br />
-                      <span className="text-xs font-normal">(True Positive)</span>
+                      <span className="text-xs font-normal">True Positive</span>
                     </td>
                     <td className="border-2 border-gray-300 p-4 text-center bg-red-50 font-bold text-red-700">
-                      1
+                      {FN}
                       <br />
-                      <span className="text-xs font-normal">(False Negative)</span>
+                      <span className="text-xs font-normal">False Negative</span>
                     </td>
                   </tr>
                   <tr>
-                    <th className="border-2 border-gray-300 p-4 bg-gray-100 font-semibold">No Leak</th>
-                    <td className="border-2 border-gray-300 p-4 text-center bg-orange-50 font-bold text-orange-700">
-                      3
+                    <th className="border-2 border-gray-300 p-4 bg-gray-100 font-semibold">
+                      No Leak
                       <br />
-                      <span className="text-xs font-normal">(False Positive)</span>
+                      <span className="text-[10px] font-normal">
+                        (Water Off, Half, Full)
+                      </span>
+                    </th>
+                    <td className="border-2 border-gray-300 p-4 text-center bg-orange-50 font-bold text-orange-700">
+                      {FP}
+                      <br />
+                      <span className="text-xs font-normal">False Positive</span>
                     </td>
                     <td className="border-2 border-gray-300 p-4 text-center bg-green-50 font-bold text-green-700">
-                      22
+                      {TN}
                       <br />
-                      <span className="text-xs font-normal">(True Negative)</span>
+                      <span className="text-xs font-normal">True Negative</span>
                     </td>
                   </tr>
                 </tbody>
@@ -201,42 +325,60 @@ export default function TestingResults() {
             </div>
 
             <p className="text-sm text-gray-600 text-center mt-6">
-              Based on 45 test scenarios conducted over 2-week evaluation period
+              Based on 18 scenario-level tests: 5 idle, 5 drip, 3 half-blast, 5
+              full-blast. Only sustained drip behavior is treated as a
+              &quot;leak&quot; for alerting in this prototype.
             </p>
           </Card>
         </section>
 
         {/* False Positive Mitigation */}
         <section>
-          <Card className="p-8 bg-[#0E3A5D] text-[#0E3A5D]">
-            <h2 className="text-2xl font-bold mb-6">False Positive Mitigation Strategy</h2>
+          <Card className="p-8 bg-[#0E3A5D] text-white">
+            <h2 className="text-2xl font-bold mb-6">
+              False Positive Mitigation Strategy
+            </h2>
 
             <div className="grid md:grid-cols-2 gap-8">
               <div>
-                <h3 className="text-lg font-semibold mb-3 text-[#2CB1A1]">Identified Challenges</h3>
-                <ul className="space-y-2 text-gray-600">
-                  <li>• Appliance vibrations (washing machine, dishwasher)</li>
-                  <li>• Brief high-flow events (toilet flush)</li>
-                  <li>• External vibrations (door slams, footsteps)</li>
+                <h3 className="text-lg font-semibold mb-3 text-[#2CB1A1]">
+                  Observed Behavior
+                </h3>
+                <ul className="space-y-2 text-gray-600 text-sm">
+                  <li>• Half-blast and full-blast flows cluster above drip RMS.</li>
+                  <li>• No leak alerts occurred for normal-use scenarios.</li>
+                  <li>
+                    • One borderline drip run did not trigger within the test
+                    window (current sensitivity trade-off).
+                  </li>
                 </ul>
               </div>
 
               <div>
-                <h3 className="text-lg font-semibold mb-3 text-[#2CB1A1]">Solutions Implemented</h3>
-                <ul className="space-y-2 text-gray-600">
-                  <li>• 60-second persistence threshold</li>
-                  <li>• Adaptive baseline learning</li>
-                  <li>• RMS deviation instead of absolute values</li>
-                  <li>• User-adjustable sensitivity settings</li>
+                <h3 className="text-lg font-semibold mb-3 text-[#2CB1A1]">
+                  Logic Used
+                </h3>
+                <ul className="space-y-2 text-gray-600 text-sm">
+                  <li>• Case-based ranges derived from measured RMS bands.</li>
+                  <li>
+                    • Persistence: drip alert only if low-level vibration
+                    persists across multiple 10s windows.
+                  </li>
+                  <li>• Only the drip state is mapped to &quot;leak&quot;.</li>
+                  <li>
+                    • Future work: refine thresholds to capture the missed drip
+                    without introducing alerts on idle noise.
+                  </li>
                 </ul>
               </div>
             </div>
 
-            <div className="mt-8 p-4 bg-white/10 rounded-lg backdrop-blur-sm">
-              <p className="text-gray-600 text-sm leading-relaxed">
-                <strong>Key Finding:</strong> Persistence logic reduced false positives by 73% compared to simple threshold detection,
-                while maintaining 95% detection rate for genuine leak events.
-              </p>
+            <div className="mt-8 p-4 bg-white/10 rounded-lg backdrop-blur-sm text-sm text-gray-600 leading-relaxed">
+              <strong>Key Takeaway:</strong> With the current RMS bands and
+              persistence logic, the prototype achieved {overallAccuracy}%
+              overall accuracy, 0% false positive rate on normal-use scenarios,
+              and 80% detection on tested drip leaks. Thresholds can be further
+              tuned using this dataset to close the gap on the missed case.
             </div>
           </Card>
         </section>
