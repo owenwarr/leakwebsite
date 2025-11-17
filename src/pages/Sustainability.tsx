@@ -317,7 +317,7 @@ export default function Sustainability() {
               <div className="space-y-4">
                 <div>
                   <div className="text-sm text-gray-600 mb-1">
-                    Per-Unit Hardware
+                    Device Cost Hardware
                   </div>
                   <div className="text-2xl font-bold text-[#0E3A5D]">
                     $50–$75 (target)

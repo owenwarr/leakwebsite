@@ -128,7 +128,7 @@ export default function ClampEnclosure() {
         <div className="flex-1">
           <h3 className="font-bold text-[#0E3A5D] mb-2">Position on Pipe</h3>
           <p className="text-gray-600">
-            Choose a straight run of pipe (under-sink or near water heater). 
+            Choose a straight run of pipe (under-sink or by toilet). 
             Avoid elbows and valves. Tighten the strap to maintain firm, continuous contact.
           </p>
         </div>

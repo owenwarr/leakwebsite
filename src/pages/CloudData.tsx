@@ -129,7 +129,7 @@ export default function CloudData() {
                 
                 <div className="space-y-4">
                   <div>
-                    <h3 className="font-semibold mb-2">Encryption</h3>
+                    <h3 className="font-semibold mb-2">Encryption (Planned)</h3>
                     <ul className="space-y-1 text-sm text-gray-600">
                       <li>• TLS 1.3 for data in transit</li>
                       <li>• AES-256 encryption at rest</li>

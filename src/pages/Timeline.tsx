@@ -6,9 +6,9 @@ export default function Timeline() {
   const milestones = [
     { phase: "Concept & Research", date: "Aug 2025", status: "completed", tasks: ["Problem identification", "Market research", "Technology evaluation", "Team formation"] },
     { phase: "Prototype Design", date: "Sep 2025", status: "completed", tasks: ["Hardware selection", "3D modeling", "Circuit design", "Initial BOM"] },
+	{ phase: "Cloud Infrastructure", date: "Sep 2025", status: "completed", tasks: ["Database schema", "API endpoints", "Authentication", "Real-time sync"] },
+	{ phase: "Mobile App Development", date: "Aug-Oct 2025", status: "completed", tasks: ["Flutter setup", "Supabase integration", "UI/UX design", "Push notifications"] },
     { phase: "Firmware Development", date: "Sep-Nov 2025", status: "completed", tasks: ["ESP32 setup", "Sensor integration", "RMS algorithm", "Baseline learning"] },
-    { phase: "Mobile App Development", date: "Aug-Oct 2025", status: "completed", tasks: ["Flutter setup", "Supabase integration", "UI/UX design", "Push notifications"] },
-    { phase: "Cloud Infrastructure", date: "Sep 2025", status: "completed", tasks: ["Database schema", "API endpoints", "Authentication", "Real-time sync"] },
     { phase: "Enclosure & Assembly", date: "Oct 2025", status: "completed", tasks: ["3D printing", "Assembly jigs", "Velcro mounting", "First prototype"] },
     { phase: "Testing & Validation", date: "Oct 2025", status: "completed", tasks: ["Baseline testing", "Leak simulation", "False positive analysis", "Battery profiling"] },
     { phase: "Poster & Demo", date: "Nov 2025", status: "completed", tasks: ["Poster design", "Demo preparation", "Documentation", "Final presentation"] },

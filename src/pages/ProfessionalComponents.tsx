@@ -105,7 +105,7 @@ export default function ProfessionalComponents() {
                 <ul className="space-y-2 text-gray-700">
                   <li className="flex items-start gap-2">
                     <div className="w-1.5 h-1.5 rounded-full bg-[#2CB1A1] mt-2 flex-shrink-0"></div>
-                    <span>Encrypted data transmission (TLS 1.3)</span>
+                    <span>Encrypted data transmission (TLS 1.3) (Planned)</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <div className="w-1.5 h-1.5 rounded-full bg-[#2CB1A1] mt-2 flex-shrink-0"></div>

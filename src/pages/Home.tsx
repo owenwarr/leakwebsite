@@ -41,13 +41,13 @@ export default function Home() {
                 🎓 Senior Design Project 2025
               </div>
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight mb-6">
-                Clamp-On, Renter-Friendly Leak Detection
+                Clamp-On, Renter-Friendly Leak Detector
               </h1>
               <p className="text-xl sm:text-2xl text-gray-200 mb-4">
                 No Cutting, No Plumbers.
               </p>
               <p className="text-lg text-gray-300 mb-8 leading-relaxed">
-                Non-invasive vibration sensing that learns a baseline and flags sustained anomalies.
+                Non-invasive vibration sensing that learns a baseline and flags sustained anomalies in your pipes.
               </p>
               
               <div className="flex flex-wrap gap-4">
