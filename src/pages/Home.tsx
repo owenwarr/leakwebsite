@@ -10,7 +10,7 @@ import { createPageUrl } from "../utils";
 export default function Home() {
   const specs = [
     { icon: DollarSign, label: "Prototype Cost", value: "$50" },
-    { icon: Zap, label: "Install", value: "Velcro clamp + 3D box" },
+    { icon: Zap, label: "Install", value: "Velcro strap + 3D box" },
     { icon: Battery, label: "Battery", value: "4400 mAh; ≥3 months target" },
     { icon: Wifi, label: "Connectivity", value: "2.4 GHz Wi-Fi" },
     { icon: AlertTriangle, label: "Detection", value: "RMS baseline + anomaly alerts" },
@@ -18,7 +18,7 @@ export default function Home() {
   ];
 
   const comparableProducts = [
-    { feature: "Installation", ours: "Clamp-on, no plumbing mods", others: "Often requires cutting pipes" },
+    { feature: "Installation", ours: "strap-on, no plumbing mods", others: "Often requires cutting pipes" },
     { feature: "Cost", ours: "$50", others: "$250–$500+" },
     { feature: "Renter-Friendly", ours: "Yes, fully removable", others: "Usually requires landlord approval" },
     { feature: "Power", ours: "Rechargeable battery", others: "Often hardwired" },
@@ -41,7 +41,7 @@ export default function Home() {
                 🎓 Senior Design Project 2025
               </div>
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight mb-6">
-                Clamp-On, Renter-Friendly Leak Detector
+                Strap-On, Renter-Friendly Leak Detector
               </h1>
               <p className="text-xl sm:text-2xl text-gray-200 mb-4">
                 No Cutting, No Plumbers.
@@ -102,10 +102,10 @@ export default function Home() {
               </h2>
               <div className="prose prose-lg text-gray-600 leading-relaxed">
                 <p>
-                  Clamp-on device uses an accelerometer and a FireBeetle ESP32. During setup it learns a baseline RMS profile of normal plumbing vibration. It samples periodically at low power, compares current RMS against baseline, and flags sustained deviations as potential leaks.
+                  strap-on device uses an accelerometer and a FireBeetle ESP32. During setup it learns a baseline RMS profile of normal plumbing vibration. It samples periodically at low power, compares current RMS against baseline, and flags sustained deviations as potential leaks.
                 </p>
                 <p>
-                  To preserve battery, it limits Wi-Fi use to brief bursts for logging and notifications to the Android app (Supabase + FCM). Hardware is intentionally simple: Velcro clamp, 3D box shaped to the pipe, brass screws; no op-amp or analog filtering; only two resistors in the signal/power path.
+                  To preserve battery, it limits Wi-Fi use to brief bursts for logging and notifications to the Android app (Supabase + FCM). Hardware is intentionally simple: Velcro strap, 3D box shaped to the pipe, brass screws; no op-amp or analog filtering; only two resistors in the signal/power path.
                 </p>
               </div>
             </div>
