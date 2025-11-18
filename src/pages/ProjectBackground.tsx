@@ -47,7 +47,7 @@ export default function ProjectBackground() {
                 The Problem
               </div>
               <h2 className="text-3xl font-bold text-[#0E3A5D] mb-6">
-                Hidden Leaks, Big Consequences
+                Unnoticed Leaks, Big Consequences
               </h2>
               <p className="text-lg text-gray-600 mb-8 leading-relaxed">
                 Water leaks in residential properties often go undetected until
