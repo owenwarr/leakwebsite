@@ -2,7 +2,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Search, X } from "lucide-react";
-import { searchIndex, type SearchItem } from "../../search/searchIndex";
 
 type Props = {
   open: boolean;
