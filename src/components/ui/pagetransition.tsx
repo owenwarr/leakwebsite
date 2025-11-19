@@ -1,29 +1,24 @@
-// src/components/PageTransition.tsx
-import { motion, useReducedMotion } from "framer-motion";
-import React, { useRef } from "react";
+// src/components/ui/pagetransition.tsx
+import { motion } from "framer-motion";
+import React from "react";
 
-type Props = { children: React.ReactNode };
+type Props = {
+  children: React.ReactNode;
+  /** Turn animations on/off (default: true) */
+  enable?: boolean;
+};
 
-export default function PageTransition({ children }: Props) {
-  const reduce = useReducedMotion();
-  const hasMountedRef = useRef(false);
-
-  // Skip animation on the very first mount to avoid the “flash then fade” effect
-  const isFirstMount = !hasMountedRef.current;
-  if (isFirstMount) hasMountedRef.current = true;
-
-  const duration = reduce ? 0 : 0.18;
+export default function PageTransition({ children, enable = true }: Props) {
+  // Always provide objects to framer-motion; if disabled, we use zero-duration.
+  const initial = enable ? { opacity: 0, y: 8 } : { opacity: 1, y: 0 };
+  const animate = { opacity: 1, y: 0 };
+  const exit = enable ? { opacity: 0, y: -8 } : { opacity: 1, y: 0 };
+  const transition = enable
+    ? { duration: 0.22, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] }
+    : { duration: 0.001 };
 
   return (
-    <motion.div
-      // No animation on first paint; smooth fade only on subsequent route changes
-      initial={isFirstMount ? false : { opacity: 0 }}
-      animate={{ opacity: 1 }}
-      // Remove exit entirely to avoid visible fade-out that can look like a second fade
-      exit={false}
-      transition={{ duration, ease: [0.25, 0.1, 0.25, 1] }}
-      style={{ willChange: "opacity" }}
-    >
+    <motion.div initial={initial} animate={animate} exit={exit} transition={transition}>
       {children}
     </motion.div>
   );
