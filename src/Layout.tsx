@@ -1,13 +1,16 @@
+// src/layout.tsx
 import React, { useState, useEffect } from "react";
 import { Link, useLocation, Outlet } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import {
   Home as HomeIcon, FileText, Network, ShoppingCart, Box, Cpu,
   Smartphone, Cloud, FlaskConical, Leaf, Calendar,
-  Lightbulb, Award, BookOpen, FileStack, Users, Menu, X, Search as SearchIcon
+  Lightbulb, Award, BookOpen, FileStack, Users, Menu, X
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import SearchDialog, { useSearchHotkeys } from "@/components//ui/searchdialog";
+
+// 🔄 Smooth page transitions
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 
 const navigationItems = [
   { title: "Home", url: createPageUrl("Home"), icon: HomeIcon },
@@ -35,8 +38,7 @@ export default function Layout({ children }: { children?: React.ReactNode }) {
   const [hidden, setHidden] = useState(false);
   const [lastScrollY, setLastScrollY] = useState(0);
 
-  const [searchOpen, setSearchOpen] = useState(false);
-  useSearchHotkeys(() => setSearchOpen(true));
+  const prefersReducedMotion = useReducedMotion();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -51,12 +53,34 @@ export default function Layout({ children }: { children?: React.ReactNode }) {
 
   useEffect(() => { setMobileMenuOpen(false); }, [location.pathname]);
 
+  // ⬆️ Scroll to top on route change (respect reduced motion)
+  useEffect(() => {
+    if (prefersReducedMotion) {
+      window.scrollTo(0, 0);
+    } else {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  }, [location.pathname, prefersReducedMotion]);
+
+  // Framer Motion variants for page transitions
+  const variants = {
+    initial: prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: 8 },
+    animate: prefersReducedMotion ? { opacity: 1 } : { opacity: 1, y: 0 },
+    exit: prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: -8 },
+  };
+
+  const transition = prefersReducedMotion
+    ? { duration: 0 }
+    : { duration: 0.25, ease: "easeOut" };
+
   return (
     <div className="min-h-screen bg-[#F6F8FA]">
       {/* Nav */}
-      <nav className={`fixed top-0 left-0 right-0 z-[200] transition-all duration-300 ${
-        scrolled ? "bg-white/95 backdrop-blur-md shadow-md" : "bg-transparent"
-      } ${hidden ? "-translate-y-full" : "translate-y-0"}`}>
+      <nav
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+          scrolled ? "bg-white/95 backdrop-blur-md shadow-md" : "bg-transparent"
+        } ${hidden ? "-translate-y-full" : "translate-y-0"}`}
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <Link to={createPageUrl("Home")} className="flex items-center gap-3 group">
@@ -88,7 +112,6 @@ export default function Layout({ children }: { children?: React.ReactNode }) {
                 );
               })}
 
-              {/* More dropdown (unchanged) */}
               <div className="relative group">
                 <Button variant="ghost" className="text-sm font-medium text-gray-700 hover:bg-gray-100">
                   More
@@ -115,33 +138,16 @@ export default function Layout({ children }: { children?: React.ReactNode }) {
                   })}
                 </div>
               </div>
-
-              {/* Search button */}
-              <Button
-                variant="ghost"
-                className="ml-1 text-gray-700 hover:bg-gray-100"
-                onClick={() => setSearchOpen(true)}
-                title="Search (Ctrl/⌘ + K)"
-              >
-                <SearchIcon className="w-4 h-4 mr-2" />
-                <span className="hidden xl:inline">Search</span>
-                <span className="ml-2 hidden 2xl:inline text-xs text-gray-500 border px-1.5 py-0.5 rounded">Ctrl/⌘ K</span>
-              </Button>
             </div>
 
-            {/* Mobile: search + menu */}
-            <div className="lg:hidden flex items-center gap-1">
-              <Button variant="ghost" size="icon" onClick={() => setSearchOpen(true)} aria-label="Search">
-                <SearchIcon className="w-5 h-5" />
-              </Button>
-              <Button variant="ghost" size="icon" onClick={() => setMobileMenuOpen(!mobileMenuOpen)} aria-label="Toggle menu">
-                {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-              </Button>
-            </div>
+            {/* Mobile button */}
+            <Button variant="ghost" size="icon" className="lg:hidden" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
+              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </Button>
           </div>
         </div>
 
-        {/* Mobile menu (unchanged) */}
+        {/* Mobile menu */}
         {mobileMenuOpen && (
           <div className="lg:hidden bg-white border-t border-gray-200 shadow-lg">
             <div className="max-w-7xl mx-auto px-4 py-4 max-h-[80vh] overflow-y-auto">
@@ -168,15 +174,69 @@ export default function Layout({ children }: { children?: React.ReactNode }) {
         )}
       </nav>
 
-      <main className="pt-16">{children ?? <Outlet />}</main>
+      {/* Main with animated route transitions */}
+      <main className="pt-16">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={location.pathname}
+            initial="false"
+            animate="animate"
+            exit="exit"
+            variants={variants}
+            transition={transition}
+            className="will-change-transform"
+          >
+            {children ?? <Outlet />}
+          </motion.div>
+        </AnimatePresence>
+      </main>
 
-      {/* Footer (unchanged) */}
+      {/* Footer */}
       <footer className="bg-[#0E3A5D] text-white mt-20">
-        {/* … your existing footer content … */}
-      </footer>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+            {/* Project blurb */}
+            <div>
+              <h3 className="text-xl font-bold mb-3">Leak Detector Project</h3>
+              <p className="text-gray-300 text-sm leading-relaxed">
+                A renter-friendly, non-invasive leak detection system using RMS-based anomaly detection.
+              </p>
+            </div>
 
-      {/* Search Modal */}
-      <SearchDialog open={searchOpen} onClose={() => setSearchOpen(false)} />
+            {/* Quick Links */}
+            <div>
+              <h3 className="text-xl font-bold mb-3">Quick Links</h3>
+              <ul className="space-y-2 text-sm">
+                <li><Link to="/" className="hover:text-[#2CB1A1]">Home</Link></li>
+                <li><Link to="/project-background" className="hover:text-[#2CB1A1]">Project Background</Link></li>
+                <li><Link to="/system-diagram" className="hover:text-[#2CB1A1]">System Diagram</Link></li>
+                <li><Link to="/parts-list" className="hover:text-[#2CB1A1]">Parts List</Link></li>
+                <li><Link to="/clamp-enclosure" className="hover:text-[#2CB1A1]">Clamp &amp; Enclosure</Link></li>
+              </ul>
+            </div>
+
+            {/* Contact */}
+            <div>
+              <h3 className="text-xl font-bold mb-3">Contact</h3>
+              <ul className="text-sm text-gray-300 space-y-1">
+                <li>Georgia Southern University</li>
+                <li>Senior Design Project Fall 2025</li>
+                <li className="mt-3">Team:</li>
+                <li><a className="hover:text-[#2CB1A1]" href="mailto:dc22627@georgiasouthern.edu">Dustin Conger</a></li>
+                <li><a className="hover:text-[#2CB1A1]" href="mailto:ow01446@georgiasouthern.edu">Owen Warrington</a></li>
+                <li><a className="hover:text-[#2CB1A1]" href="mailto:sh31183@georgiasouthern.edu">Samuel Holder</a></li>
+                <li><a className="hover:text-[#2CB1A1]" href="mailto:jw48679@georgiasouthern.edu">Jarred Waters</a></li>
+              </ul>
+            </div>
+          </div>
+
+          <hr className="border-white/10 mt-8" />
+
+          <div className="py-6 text-center text-sm text-gray-400">
+            © 2025 Leak Detector Team. All rights reserved.
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }
