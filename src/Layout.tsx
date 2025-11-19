@@ -69,9 +69,10 @@ export default function Layout({ children }: { children?: React.ReactNode }) {
     exit: prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: -8 },
   };
 
+  // ✅ Use cubic-bezier tuple for ease (or omit ease entirely)
   const transition = prefersReducedMotion
     ? { duration: 0 }
-    : { duration: 0.25, ease: "easeOut" };
+    : { duration: 0.25, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] };
 
   return (
     <div className="min-h-screen bg-[#F6F8FA]">
@@ -176,10 +177,11 @@ export default function Layout({ children }: { children?: React.ReactNode }) {
 
       {/* Main with animated route transitions */}
       <main className="pt-16">
-        <AnimatePresence mode="wait">
+        {/* ✅ Prevent the first route from animating in again */}
+        <AnimatePresence mode="wait" initial={false}>
           <motion.div
             key={location.pathname}
-            initial="false"
+            initial="initial"
             animate="animate"
             exit="exit"
             variants={variants}
