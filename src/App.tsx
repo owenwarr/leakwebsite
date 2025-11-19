@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Layout from "./Layout";
+import ScrollToTop from "@/components/ui/scrolltotop";
 
 // Pages
 import Home from "@/pages/Home";
@@ -19,10 +20,12 @@ import LessonsLearned from "@/pages/LessonsLearned";
 import Documentation from "@/pages/Documentation";
 import TeamContact from "@/pages/TeamContact";
 
-
 export default function App() {
   return (
     <BrowserRouter>
+      {/* Scroll restore on every route change */}
+      <ScrollToTop />
+
       <Routes>
         {/* Layout wraps all routes */}
         <Route element={<Layout />}>
@@ -30,7 +33,7 @@ export default function App() {
           <Route path="/" element={<Home />} />
           <Route path="/home" element={<Navigate to="/" replace />} />
 
-          {/* Main sections (keep paths in sync with createPageUrl) */}
+          {/* Main sections */}
           <Route path="/project-background" element={<ProjectBackground />} />
           <Route path="/system-diagram" element={<SystemDiagram />} />
           <Route path="/parts-list" element={<PartsList />} />
@@ -47,7 +50,7 @@ export default function App() {
           <Route path="/documentation" element={<Documentation />} />
           <Route path="/team-contact" element={<TeamContact />} />
 
-          {/* 404 → Home (or make a dedicated NotFound page) */}
+          {/* 404 → Home */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>
       </Routes>

@@ -1,22 +1,189 @@
+/* src/index.css */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* (Optional) your custom styles, layered so they play nice with Tailwind */
+/* =========================
+   Global tokens & base polish
+   ========================= */
 @layer base {
   :root {
+    /* Brand colors (match your palette) */
+    --brand-ink: #0E3A5D;
+    --brand-accent: #2CB1A1;
+
+    /* Surface / shadow */
+    --surface: #ffffff;
+    --surface-2: #f6f8fa;
+    --shadow-sm: 0 1px 2px rgba(16, 24, 40, 0.06);
+    --shadow-md: 0 8px 24px rgba(16, 24, 40, 0.08);
+    --shadow-lg: 0 12px 32px rgba(16, 24, 40, 0.12);
+
+    /* Radii & motion */
+    --radius: 1rem; /* 16px */
+    --easing: cubic-bezier(.22,.61,.36,1);
+    --dur-fast: 150ms;
+    --dur: 220ms;
+    --dur-slow: 360ms;
+
     color-scheme: light;
   }
+
   html, body, #root { height: 100%; }
-  body { @apply bg-white text-slate-900; }
+
+  /* Smooth scroll + momentum on touch devices */
+  html {
+    scroll-behavior: smooth;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    @apply bg-white text-slate-900 antialiased;
+    background: var(--surface-2);
+  }
+
+  /* Text selection */
+  ::selection {
+    background: color-mix(in oklab, var(--brand-accent) 24%, white);
+    color: var(--brand-ink);
+  }
+
+  /* Focus ring (for anything using :focus-visible) */
+  :focus-visible {
+    outline: 0;
+    box-shadow:
+      0 0 0 2px #fff,
+      0 0 0 4px color-mix(in oklab, var(--brand-accent) 60%, #0000);
+    border-radius: 0.5rem;
+    transition: box-shadow var(--dur-fast) var(--easing);
+  }
+
+  /* Subtle link style */
+  a {
+    text-underline-offset: 3px;
+    text-decoration-thickness: 1px;
+  }
+  a:hover {
+    text-decoration-thickness: 2px;
+  }
+
+  /* Nicer scrollbars (WebKit + Firefox) */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in oklab, var(--brand-ink) 40%, #cbd5e1)
+                     color-mix(in oklab, white 85%, var(--brand-ink) 15%);
+  }
+  *::-webkit-scrollbar {
+    width: 10px; height: 10px;
+  }
+  *::-webkit-scrollbar-track {
+    background: color-mix(in oklab, white 90%, var(--brand-ink) 10%);
+    border-radius: 999px;
+  }
+  *::-webkit-scrollbar-thumb {
+    background: color-mix(in oklab, var(--brand-ink) 40%, #94a3b8);
+    border-radius: 999px;
+    border: 2px solid color-mix(in oklab, white 92%, var(--brand-ink) 8%);
+  }
+  *::-webkit-scrollbar-thumb:hover {
+    background: color-mix(in oklab, var(--brand-ink) 55%, #64748b);
+  }
 }
 
+/* =========================
+   Reusable components polish
+   ========================= */
 @layer components {
-  /* example: a card shadow you can reuse */
-  .shadow-card { @apply shadow-lg border border-slate-200 rounded-2xl bg-white; }
+  /* Reusable elevated card surface */
+  .shadow-card {
+    @apply rounded-2xl bg-white border border-slate-200;
+    box-shadow: var(--shadow-sm);
+    transition: box-shadow var(--dur) var(--easing), transform var(--dur) var(--easing);
+    will-change: box-shadow, transform;
+  }
+  .shadow-card:hover {
+    box-shadow: var(--shadow-md);
+  }
+
+  /* Subtle hover lift (use on cards/tiles) */
+  .hover-lift {
+    transition: transform var(--dur) var(--easing), box-shadow var(--dur) var(--easing);
+    will-change: transform, box-shadow;
+  }
+  .hover-lift:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+  }
+
+  /* Press effect for interactive blocks */
+  .pressable {
+    transition: transform var(--dur-fast) var(--easing);
+  }
+  .pressable:active {
+    transform: translateY(1px) scale(0.995);
+  }
+
+  /* Frosted "glass" panel (for hero overlays, etc.) */
+  .glass {
+    @apply bg-white/70 backdrop-blur-md border border-white/40;
+    box-shadow: var(--shadow-sm);
+  }
+
+  /* Gradient brand header helper */
+  .brand-gradient {
+    background-image: linear-gradient(135deg, var(--brand-ink), var(--brand-accent));
+  }
 }
 
+/* =========================
+   Utilities & animations
+   ========================= */
 @layer utilities {
-  /* example utility */
+  /* Standard container utility (kept from your file) */
   .container-narrow { @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8; }
+
+  /* Smooth pan for images/illustrations */
+  .smooth-pan {
+    transition: transform var(--dur-slow) var(--easing);
+    will-change: transform;
+  }
+  .smooth-pan:hover { transform: scale(1.02); }
+
+
+  /* Slight float animation for hero logos/badges */
+  .float {
+    animation: floatY 6s var(--easing) infinite;
+  }
+
+  /* Prevent button label wrapping (keeps sizes uniform) */
+  .no-wrap { white-space: nowrap; }
+
+  /* Subtle outline removal helper (for wrapped icons etc.) */
+  .focus-silent:focus-visible { box-shadow: none; }
+
+  /* Divider hairline */
+  .hairline { border-color: rgb(0 0 0 / 0.06); }
+}
+
+/* =========================
+   Keyframes
+   ========================= */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes floatY {
+  0%, 100% { transform: translateY(0px); }
+  50%      { transform: translateY(-4px); }
+}
+
+/* =========================
+   Reduced motion respect
+   ========================= */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .hover-lift, .smooth-pan, .pressable, .fade-in, .float {
+    transition: none !important;
+    animation: none !important;
+  }
 }
