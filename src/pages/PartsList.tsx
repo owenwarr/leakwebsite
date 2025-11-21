@@ -13,29 +13,26 @@ type BomItem = {
 export default function PartsList() {
   const bomItems: BomItem[] = [
     { item: "FireBeetle ESP32-E IoT Microcontroller", qty: 1, cost: "$15", link: "https://www.dfrobot.com/product-2195.html" },
-    { item: "ADXL335 Accelerometer Module", qty: 1, cost: "$2.50", link: "https://www.amazon.com/gp/product/B094NHTPKR/ref=ox_sc_act_title_1?smid=A3KCMC2VCXFGL9&th=1" },
+    { item: "LIS2DW12 Accelerometer Module", qty: 1, cost: "$3.90", link: "https://www.dfrobot.com/product-2348.html?gad_source=1&gad_campaignid=22388643497&gbraid=0AAAAADucPlAi_VK0D1Zxl0fvlCz05hEfr&gclid=CjwKCAiAuIDJBhBoEiwAxhgyFnBdS4Tfs_6dWXgTB28-L0u0IsOmwlLtUOeUUuJ-u-DI6-kUSudrLhoClE8QAvD_BwE" },
     { item: "3.7V 4400mAh Li-Po Battery", qty: 1, cost: "$6", link: "https://www.amazon.com/dp/B0BJKFJ227?ref=ppx_yo2ov_dt_b_fed_asin_title" },
     { item: "Velcro Strap (1.5\" width)", qty: 1, cost: "$3", link: "https://www.walmart.com/ip/VELCRO-USA-Inc-Industrial-Strength-Sticky-Back-Hook-Loop-Fastener-Strips-4-x-2-Black/19311524?wmlspartner=wlpa&selectedSellerId=0&wl13=1024&gclsrc=aw.ds&adid=2222222227719311524_117755028669_12420145346&wl0=&wl1=g&wl2=c&wl3=501107745824&wl4=pla-394283752452&wl5=9010995&wl6=&wl7=&wl8=&wl9=pla&wl10=8175035&wl11=local&wl12=19311524&veh=sem_LIA&gclsrc=aw.ds&gad_source=1&gad_campaignid=12420145346&gbraid=0AAAAADmfBIr0hAjuRk-897OnEGwUbASb6&gclid=Cj0KCQiA5abIBhCaARIsAM3-zFWFnHAZFaDSyb4AFpOj96Gnc3_zBIPU0c9SMaiis6qF6LBwc38WpIYaAhbTEALw_wcB" },
     { item: "3D Printing Filament (PLA)", qty: "50g", cost: "$2.00", link: "https://atomicfilament.com/products/black-pla-filament" },
-    { item: "Brass Screws M3 (6 pack)", qty: 1, cost: "$1.50", link: "https://www.lowes.com/pd/Hillman-8-32-x-1-2-in-Slotted-Drive-Machine-Screws-4-Count/3035901?store=177&cm_mmc=shp-_-c-_-prd-_-hdw-_-ggl-_-PMAX_HDW_000_Priority_Item-_-3035901-_-local-_-0-_-0&gclsrc=aw.ds&gad_source=1&gad_campaignid=21797082881&gbraid=0AAAAAD2B2W-Pm1IYCwRHSMgDUhLmFWn6h&gclid=Cj0KCQiA5abIBhCaARIsAM3-zFXQcRKyo4vYyL2i9PrfmvSzaFWBRmEmIK_CIaQytMDb3yMwv6W8bLIaAsp3EALw_wcB" },
-    { item: "Resistors (2x 10kΩ)", qty: 1, cost: "$0.20", link: "https://www.digikey.com/en/products/detail/stackpole-electronics-inc/CF14JT4K70/1830366?gclsrc=aw.ds&gad_source=1&gad_campaignid=20682878391&gbraid=0AAAAADrbLlgb8gJQ6J1kcKvIjfq2-lC1x&gclid=Cj0KCQiA5abIBhCaARIsAM3-zFVw2BcGZrDs85geLEBjB9UmZ9qvf2ijZBfmhUmqiZ3h1JbpAkflB2IaApwSEALw_wcB" },
     { item: "Jumper Wires x10 (Male-Male)", qty: 1, cost: "$2", link: "https://www.adafruit.com/product/1957?srsltid=AfmBOooGsyi4KqcGJqzcJNcyJdSbAl943DiR-bqoieDGuh1_y6BzBXvofE8" },
     { item: "USB-C Cable (charging)", qty: 1, cost: "$6", link: "https://www.amazon.com/Amazon-Basics-Charger-480Mbps-Certified/dp/B01GGKYN0A/ref=sr_1_7_ffob_sspa?dib=eyJ2IjoiMSJ9.kD_UX5cfSPk9-oqnhWXGj8CAbSOafH6GFMHA33knmhTjJySJfMCGsZLd9Ok09ZUQ6MqtaSn3tFi_bDtUD0NnxJEwV_oFVLj3Ylknc5-QkBSWykClXICeZX-TrTCSlUwNiAO01PDRSdqwdCNLhLnbhe6JXU9qx9jyyxIovfWj1COUIXcSqMi885JZS-Upv_KC9x4SqkwbudYx9ar8HNT3hRc1dgcakQPDsupHFYg1sEM.ktyLaCMcEVhDwJPFIxqUJSCUo-rsRYJmbTl5CvCfkd0&dib_tag=se&keywords=usb-c+charger&qid=1762283092&sr=8-7-spons&sp_csd=d2lkZ2V0TmFtZT1zcF9tdGY&psc=1" },
     { item: "Heat Shrink Tubing", qty: "1ft", cost: "$1.00", link: "https://www.amazon.com/650pcs-Shrink-Tubing-innhom-Approved/dp/B07WWWPR2X/ref=sr_1_6?dib=eyJ2IjoiMSJ9.afAtOFc0AWv7IewHnY-SsuN5uE2l0bfL-h5TpNvDnE6kfQoqZkYohyqoxSNuMUcN_WNKaZcK90NvFGHhgy-ATxUo2xlVY1iVJF70EdInhxSFmSUhiM8_FjuUkms3YpVmmAsvh-AeOUPRW-ZONGB63Ffs5WEviLLJj3lcvO1fz9Nvp4-j3OuXJFpR_GMq8_4fzU8J-2Vh9LxqaReMRHN7da1Ez8rgElSgprNg1U8fnv8.Dlip_atTTl9fUNwMOXt7GzO38fO6ZNSqZG1FdQWqPLE&dib_tag=se&keywords=heat+shrink+tubing&qid=1762283113&sr=8-6" },
+	{ item: "FPG5 Fuse Holder", qty: "1", cost: "$5.50", link: "https://www.digikey.com/en/products/detail/schurter-inc/3101.0055/2645423" },
   ];
 
   // Make category names match BOM item names exactly so they display cleanly
   const categories: Record<string, string[]> = {
     Electronics: [
       "FireBeetle ESP32-E IoT Microcontroller",
-      "ADXL335 Accelerometer Module",
+      "LIS2DW12 Accelerometer Module",
       "3.7V 4400mAh Li-Po Battery",
-      "Resistors (2x 10kΩ)",
       "Jumper Wires (Male-Male)",
     ],
     Enclosure: [
       "3D Printing Filament (PLA)",
-      "Brass Screws M3 (6 pack)",
       "Velcro Strap",
     ],
     Accessories: [
