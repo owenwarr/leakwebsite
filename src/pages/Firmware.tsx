@@ -77,7 +77,7 @@ export default function Firmware() {
                 </div>
                 <div className="flex-1">
                   <h3 className="text-lg font-bold text-[#0E3A5D] mb-2">Sensor Sampling</h3>
-                  <p className="text-gray-600 mb-2">ADXL335 accelerometer sampled at configurable rate</p>
+                  <p className="text-gray-600 mb-2">LIS2DW12 accelerometer sampled at configurable rate</p>
                 </div>
               </div>
 
