@@ -448,70 +448,7 @@ export default function Documentation() {
           </div>
         </section>
 
-        {/* Code Repositories */}
-        <section className="mb-20">
-          <div className="flex items-center justify-between mb-8">
-            <h2 className="text-3xl font-bold text-[#0E3A5D]">Source Code Repositories</h2>
-            <Button
-              variant="outline"
-              className="border-[#0E3A5D] text-[#0E3A5D] hover:bg-[#0E3A5D] hover:text-white"
-            >
-              <Github className="w-4 h-4 mr-2" />
-              View Organization
-            </Button>
-          </div>
 
-          <div className="space-y-4">
-            {[
-              {
-                name: "leak-detector-firmware",
-                description: "ESP32 firmware source code, build instructions, and configuration files",
-                language: "C++",
-                url: "#",
-              },
-              {
-                name: "leak-detector-mobile",
-                description: "Flutter/Dart mobile application for Android and iOS",
-                language: "Dart",
-                url: "#",
-              },
-              {
-                name: "leak-detector-hardware",
-                description: "CAD files, schematics, PCB layouts, and 3D printable enclosure models",
-                language: "STEP/STL",
-                url: "#",
-              },
-              {
-                name: "leak-detector-docs",
-                description: "Project documentation, reports, presentations, and supplementary materials",
-                language: "Markdown",
-                url: "#",
-              },
-            ].map((repo, index) => (
-              <Card key={index} className="p-6 border-2 border-gray-200 hover:border-[#2CB1A1] transition-all">
-                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                  <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 rounded-xl bg-gray-100 flex items-center justify-center flex-shrink-0">
-                      <Github className="w-6 h-6 text-[#0E3A5D]" />
-                    </div>
-                    <div>
-                      <h3 className="text-lg font-bold text-[#0E3A5D] mb-1">{repo.name}</h3>
-                      <p className="text-sm text-gray-600 mb-2">{repo.description}</p>
-                      <span className="inline-block px-3 py-1 bg-gray-100 text-gray-700 text-xs rounded-full">
-                        {repo.language}
-                      </span>
-                    </div>
-                  </div>
-
-                  <Button variant="outline" className="md:w-auto w-full">
-                    <Github className="w-4 h-4 mr-2" />
-                    View Repository
-                  </Button>
-                </div>
-              </Card>
-            ))}
-          </div>
-        </section>
 
         {/* Quick Links */}
         <section className="mb-20">
@@ -533,11 +470,18 @@ export default function Documentation() {
               <p className="text-xs text-gray-600">ZIP archive</p>
             </Card>
 
-            <Card className="p-6 text-center border-2 border-gray-200 hover:border-[#2CB1A1] transition-all cursor-pointer">
-              <FileText className="w-10 h-10 text-[#0E3A5D] mx-auto mb-3" />
-              <h3 className="font-bold text-[#0E3A5D] mb-2">CAD Files</h3>
-              <p className="text-xs text-gray-600">STEP &amp; STL (8.2 MB)</p>
-            </Card>
+            <a
+  href="https://georgiasouthern405.autodesk360.com/g/shares/SH28cd1QT2badd0ea72bdef006b52eab9ec8"
+  target="_blank"
+  rel="noreferrer"
+  className="block"
+>
+  <Card className="p-6 text-center border-2 border-gray-200 hover:border-[#2CB1A1] transition-all cursor-pointer">
+    <FileText className="w-10 h-10 text-[#0E3A5D] mx-auto mb-3" />
+    <h3 className="font-bold text-[#0E3A5D] mb-2">CAD Files</h3>
+    <p className="text-xs text-gray-600">STEP &amp; STL </p>
+  </Card>
+</a>
 
             <Card className="p-6 text-center border-2 border-gray-200 hover:border-[#2CB1A1] transition-all cursor-pointer">
               <Github className="w-10 h-10 text-[#0E3A5D] mx-auto mb-3" />
@@ -587,12 +531,7 @@ export default function Documentation() {
                 </ul>
               </div>
 
-              <div className="text-center mt-6">
-                <Button className="bg-white/10 border-white/20 text-white hover:bg-white/20" variant="outline">
-                  <FileText className="w-4 h-4 mr-2" />
-                  View Full License
-                </Button>
-              </div>
+
             </div>
           </Card>
         </section>
