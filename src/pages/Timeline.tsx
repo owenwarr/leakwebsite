@@ -132,7 +132,7 @@ export default function Timeline() {
             </Card>
 
             <Card className="p-6 text-center border-2 border-gray-200 hover:border-[#2CB1A1] transition-all">
-              <div className="text-4xl font-bold text-[#0E3A5D] mb-2">18</div>
+              <div className="text-4xl font-bold text-[#0E3A5D] mb-2">258</div>
               <div className="text-sm text-gray-600">Test Scenarios</div>
             </Card>
           </div>
@@ -162,7 +162,7 @@ export default function Timeline() {
             </div>
 
             <p className="text-xs text-gray-500 mt-3">
-              Note: chart reflects planned vs. actual dates through the latest iteration.
+              Note: chart reflects planned dates.
             </p>
           </Card>
         </section>

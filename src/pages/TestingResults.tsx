@@ -12,56 +12,39 @@ type TestRow = {
 };
 
 export default function TestingResults() {
-  // Scenario-level protocol (matches how you're actually testing)
+  // Updated protocol to match the new trial structure
   const testProtocol: string[] = [
-    "Collect 10-second windows of vibration data for each scenario",
-    "Build baseline from multiple 'water off' runs on the same pipe",
-    "Run 5× very slow drip (leak) scenarios on identical hardware and mounting",
-    "Run 3× half-blast and 5× full-blast normal-use scenarios",
-    "Classify scenarios using RMS-based case logic; only 'drip' is treated as a leak alert",
-    "Check for false alerts on normal-use flows and missed alerts on drip runs"
+    "Build a vibration baseline from multiple 'water off' runs on the same pipe.",
+    "Configure the device to sleep and wake roughly every 10 seconds, sampling a short RMS window on each wake.",
+    "Run 55 non-leak trials (idle and normal-use flows) to characterize the false positive rate.",
+    "Run 20 small-leak trials to probe sensitivity to very low, persistent leak behavior.",
+    "Run 8 medium-leak trials to measure detection at higher, more obvious leak levels.",
+    "Classify each wake as 'leak' or 'no leak' using RMS-based case logic; only sustained leak-like classifications generate alerts.",
+    "Aggregate results across trials to compute false positives, false negatives, and overall leak detection rates."
   ];
 
-  // Based on your aggregated data:
-  // Off:   30 windows, RMS ≈ 0.0164–0.0172
-  // Drip:  30 windows, RMS ≈ 0.0164–0.0172 (distinguished via persistence/pattern)
-  // Half:  18 windows, RMS ≈ 0.0175–0.0210
-  // Full:  30 windows, RMS ≈ 0.0222–0.0349
-  //
-  // Scenario-level summary (what we surface on the site):
-  // - 5× Off  -> all "no leak" (TN)
-  // - 5× Drip -> 4 alerts (TP), 1 missed (FN)
-  // - 3× Half -> all "no leak" (TN)
-  // - 5× Full -> all "no leak" (TN)
-  //
-  // ONLY the drip condition is configured to send notifications.
+  // Scenario-level summary for the new data
   const testResults: TestRow[] = [
     {
-      scenario: "Idle / Water Off",
-      rms: "0.0164–0.0172",
+      scenario: "Non-Leak (Idle & Normal Use)",
+      rms: "Idle to full-flow bands",
       result: "success",
-      notes: "Baseline stable across 5 runs (30 windows); no leak alerts triggered."
+      notes:
+        "55 non-leak trials (water off and normal usage). Only 2 false positives; 53 trials produced no leak alerts."
     },
     {
-      scenario: "Very Slow Drip (Leak Scenario)",
-      rms: "0.0165–0.0172",
+      scenario: "Small Leak (Low-Level Drip)",
+      rms: "Just above idle baseline",
+      result: "warning",
+      notes:
+        "20 small-leak trials. 8 trials triggered alerts; 12 trials were missed (conservative thresholds to avoid noise-driven alerts)."
+    },
+    {
+      scenario: "Medium Leak",
+      rms: "Above small-leak band",
       result: "detected",
       notes:
-        "Clamp-on leak condition correctly triggered notifications in 4 of 5 runs after ~60–120s persistence; 1 borderline run missed."
-    },
-    {
-      scenario: "Half Blast (Normal Use)",
-      rms: "0.0175–0.0210",
-      result: "success",
-      notes:
-        "3/3 runs correctly classified as normal usage; no leak notifications."
-    },
-    {
-      scenario: "Full Blast (Normal Use)",
-      rms: "0.0222–0.0349",
-      result: "success",
-      notes:
-        "5/5 runs correctly classified as normal usage; no leak notifications despite higher RMS."
+        "8 medium-leak trials. 7 correctly triggered alerts; 1 trial was missed, indicating strong but not perfect detection at this level."
     }
   ];
 
@@ -78,22 +61,39 @@ export default function TestingResults() {
     }
   };
 
-  // Confusion matrix numbers (scenario-level, not per-window):
-  // Actual leak scenarios: 5 drip runs
-  //   -> 4 predicted "leak" (TP)
-  //   -> 1 predicted "no leak" (FN)
-  // Actual no-leak scenarios: 5 off + 3 half + 5 full = 13 runs
-  //   -> 0 predicted "leak" (FP)
-  //   -> 13 predicted "no leak" (TN)
-  const TP = 4;
-  const FN = 1;
-  const FP = 0;
-  const TN = 13;
-  const total = TP + TN + FP + FN;
+  // NEW DATA (trial-level, sleep/wake every ~10 seconds):
+  //
+  // False positive:        2 / 55 non-leak trials
+  // False negative small: 12 / 20 small-leak trials
+  // False negative medium: 1 / 8 medium-leak trials
+  //
+  // Convert to confusion-matrix style counts:
+  const smallLeakTrials = 20;
+  const smallLeakFN = 12;
+  const smallLeakTP = smallLeakTrials - smallLeakFN; // 8
 
-  const overallAccuracy = ((TP + TN) / total * 100).toFixed(1); // 94.4%
-  const leakRecall = (TP / (TP + FN) * 100).toFixed(1); // 80.0%
-  const falsePositiveRate = ((FP / (FP + TN || 1)) * 100).toFixed(1); // 0.0%
+  const mediumLeakTrials = 8;
+  const mediumLeakFN = 1;
+  const mediumLeakTP = mediumLeakTrials - mediumLeakFN; // 7
+
+  const noLeakTrials = 55;
+  const FP = 2;
+  const TN = noLeakTrials - FP; // 53
+
+  // Aggregate leak vs. no-leak:
+  const TP = smallLeakTP + mediumLeakTP; // 15
+  const FN = smallLeakFN + mediumLeakFN; // 13
+  const total = TP + TN + FP + FN; // 83
+
+  const overallAccuracy = (((TP + TN) / total) * 100).toFixed(1); // ≈81.9%
+  const leakRecall = ((TP / (TP + FN)) * 100).toFixed(1); // ≈53.6%
+  const falsePositiveRate = ((FP / (FP + TN)) * 100).toFixed(1); // ≈3.6%
+
+  const smallLeakDetection = ((smallLeakTP / smallLeakTrials) * 100).toFixed(1); // 40.0%
+  const mediumLeakDetection = (
+    (mediumLeakTP / mediumLeakTrials) *
+    100
+  ).toFixed(1); // 87.5%
 
   return (
     <div className="min-h-screen py-20">
@@ -104,23 +104,24 @@ export default function TestingResults() {
             Testing &amp; Results
           </h1>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Scenario-driven evaluation of RMS-based detection with alerts only
-            for persistent drip behavior.
+            Trial-level evaluation of RMS-based detection with the device
+            waking roughly every 10 seconds to sample vibration and classify
+            leaks.
           </p>
         </div>
 
-        {/* Test Protocol */}
+        {/* Testing Protocol */}
         <section className="mb-20">
           <Card className="p-8 border-2 border-[#2CB1A1] bg-gradient-to-br from-white to-[#2CB1A1]/5">
             <h2 className="text-2xl font-bold text-[#0E3A5D] mb-6">
               Testing Protocol
             </h2>
             <p className="text-gray-600 mb-6 leading-relaxed">
-              We collected vibration data at the pipe clamp in controlled
-              scenarios to validate that the firmware&apos;s case-based logic:
-              (1) remains quiet for normal usage, and (2) reliably flags slow,
-              continuous drip behavior as a leak. Only the drip condition is
-              configured to send notifications in this stage of testing.
+              We tested the clamp-on sensor in controlled leak and non-leak
+              conditions while the firmware cycled between deep sleep and
+              short measurement windows. On each wake, the device samples
+              vibration, computes RMS, and applies case-based logic to decide
+              whether the behavior looks like a leak or normal use.
             </p>
 
             <div className="space-y-3">
@@ -136,7 +137,7 @@ export default function TestingResults() {
           </Card>
         </section>
 
-        {/* Scenario Summary Table */}
+        {/* Scenario Summary Table (updated for new trials) */}
         <section className="mb-20">
           <h2 className="text-3xl font-bold text-[#0E3A5D] mb-8">
             Scenario Results Summary
@@ -195,7 +196,7 @@ export default function TestingResults() {
         {/* Performance Metrics */}
         <section className="mb-20">
           <h2 className="text-3xl font-bold text-[#0E3A5D] mb-8">
-            Performance Metrics (Scenario-Level)
+            Performance Metrics (Trial-Level, 10s Sleep/Wake)
           </h2>
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -207,7 +208,7 @@ export default function TestingResults() {
                 Overall Classification Accuracy
               </div>
               <div className="text-xs text-gray-500 mt-2">
-                {TP + TN} of {total} scenarios correctly labeled
+                {TP + TN} of {total} trials correctly labeled
               </div>
             </Card>
 
@@ -216,10 +217,10 @@ export default function TestingResults() {
                 {leakRecall}%
               </div>
               <div className="text-sm text-gray-600">
-                Drip Leak Detection (Recall)
+                Leak Detection (Small + Medium)
               </div>
               <div className="text-xs text-gray-500 mt-2">
-                {TP} / {TP + FN} drip scenarios triggered an alert
+                {TP} / {TP + FN} leak trials triggered an alert
               </div>
             </Card>
 
@@ -231,17 +232,20 @@ export default function TestingResults() {
                 False Positive Rate
               </div>
               <div className="text-xs text-gray-500 mt-2">
-                0 leak alerts on {TN} normal-use / idle scenarios
+                {FP} leak alerts on {FP + TN} non-leak trials
               </div>
             </Card>
 
             <Card className="p-6 border-2 border-gray-600 hover:border-[#2CB1A1] transition-all text-center">
-              <div className="text-4xl font-bold text-[#0E3A5D] mb-2">60–120s</div>
+              <div className="text-xl font-bold text-[#0E3A5D] mb-1">
+                {smallLeakDetection}% / {mediumLeakDetection}%
+              </div>
               <div className="text-sm text-gray-600">
-                Typical Drip Detection Time
+                Small vs. Medium Leak Detection
               </div>
               <div className="text-xs text-gray-500 mt-2">
-                Based on persistence across multiple 10s windows
+                Small: {smallLeakTP}/{smallLeakTrials}, Medium:{" "}
+                {mediumLeakTP}/{mediumLeakTrials}
               </div>
             </Card>
           </div>
@@ -269,7 +273,7 @@ export default function TestingResults() {
                   <tr>
                     <th className="border-2 border-gray-300 p-4 bg-white"></th>
                     <th className="border-2 border-gray-300 p-4 bg-gray-100 font-semibold">
-                      Leak (Drip Alert)
+                      Leak
                     </th>
                     <th className="border-2 border-gray-300 p-4 bg-gray-100 font-semibold">
                       No Leak
@@ -288,7 +292,11 @@ export default function TestingResults() {
                   <tr></tr>
                   <tr>
                     <th className="border-2 border-gray-300 p-4 bg-gray-100 font-semibold">
-                      Leak (Drip)
+                      Leak
+                      <br />
+                      <span className="text-[10px] font-normal">
+                        (Small + Medium)
+                      </span>
                     </th>
                     <td className="border-2 border-gray-300 p-4 text-center bg-green-50 font-bold text-green-700">
                       {TP}
@@ -306,7 +314,7 @@ export default function TestingResults() {
                       No Leak
                       <br />
                       <span className="text-[10px] font-normal">
-                        (Water Off, Half, Full)
+                        (Normal-use / Idle)
                       </span>
                     </th>
                     <td className="border-2 border-gray-300 p-4 text-center bg-orange-50 font-bold text-orange-700">
@@ -325,9 +333,10 @@ export default function TestingResults() {
             </div>
 
             <p className="text-sm text-gray-600 text-center mt-6">
-              Based on 18 scenario-level tests: 5 idle, 5 drip, 3 half-blast, 5
-              full-blast. Only sustained drip behavior is treated as a
-              &quot;leak&quot; for alerting in this prototype.
+              Based on {total} trial-level tests with firmware waking from sleep
+              approximately every 10 seconds: {smallLeakTrials} small-leak
+              trials, {mediumLeakTrials} medium-leak trials, and {noLeakTrials}{" "}
+              non-leak trials. Leak category combines small and medium leaks.
             </p>
           </Card>
         </section>
@@ -345,11 +354,19 @@ export default function TestingResults() {
                   Observed Behavior
                 </h3>
                 <ul className="space-y-2 text-gray-600 text-sm">
-                  <li>• Half-blast and full-blast flows cluster above drip RMS.</li>
-                  <li>• No leak alerts occurred for normal-use scenarios.</li>
                   <li>
-                    • One borderline drip run did not trigger within the test
-                    window (current sensitivity trade-off).
+                    • Across {noLeakTrials} non-leak trials (idle and
+                    normal-use), only {FP} false positives were observed.
+                  </li>
+                  <li>
+                    • Small leaks were detected in {smallLeakTP} of{" "}
+                    {smallLeakTrials} trials ({smallLeakDetection}%); medium
+                    leaks in {mediumLeakTP} of {mediumLeakTrials} trials (
+                    {mediumLeakDetection}%).
+                  </li>
+                  <li>
+                    • Missed small leaks ({smallLeakFN} trials) reflect a
+                    conservative threshold to avoid noise-driven alerts.
                   </li>
                 </ul>
               </div>
@@ -359,26 +376,34 @@ export default function TestingResults() {
                   Logic Used
                 </h3>
                 <ul className="space-y-2 text-gray-600 text-sm">
-                  <li>• Case-based ranges derived from measured RMS bands.</li>
+                  <li>• RMS bands derived from measured vibration levels.</li>
                   <li>
-                    • Persistence: drip alert only if low-level vibration
-                    persists across multiple 10s windows.
+                    • Device wakes roughly every 10 seconds, samples vibration,
+                    then returns to sleep if readings look like &quot;off&quot;
+                    or normal use.
                   </li>
-                  <li>• Only the drip state is mapped to &quot;leak&quot;.</li>
                   <li>
-                    • Future work: refine thresholds to capture the missed drip
-                    without introducing alerts on idle noise.
+                    • Leak alerts are only raised when leak-like vibration
+                    persists across multiple wake cycles.
+                  </li>
+                  <li>
+                    • Future work: adjust thresholds and persistence rules to
+                    recover more small-leak cases without increasing the{" "}
+                    {falsePositiveRate}% false positive rate.
                   </li>
                 </ul>
               </div>
             </div>
 
-            <div className="mt-8 p-4 bg-white/10 rounded-lg backdrop-blur-sm text-sm text-gray-600 leading-relaxed">
-              <strong>Key Takeaway:</strong> With the current RMS bands and
-              persistence logic, the prototype achieved {overallAccuracy}%
-              overall accuracy, 0% false positive rate on normal-use scenarios,
-              and 80% detection on tested drip leaks. Thresholds can be further
-              tuned using this dataset to close the gap on the missed case.
+            <div className="mt-8 p-4 bg:white/10 bg-white/10 rounded-lg backdrop-blur-sm text-sm text-gray-600 leading-relaxed">
+              <strong>Key Takeaway:</strong> With the current RMS bands,
+              persistence logic, and 10-second sleep/wake cycle, the prototype
+              achieved {overallAccuracy}% overall accuracy across {total}{" "}
+              trial-level tests, a {falsePositiveRate}% false positive rate on{" "}
+              {noLeakTrials} non-leak trials, and {leakRecall}% combined
+              detection on small and medium leaks (
+              {smallLeakDetection}% small-leak,{" "}
+              {mediumLeakDetection}% medium-leak detection).
             </div>
           </Card>
         </section>
