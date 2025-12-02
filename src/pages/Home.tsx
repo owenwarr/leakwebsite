@@ -66,11 +66,11 @@ export default function Home() {
             
             <div className="relative">
               <div className="aspect-video rounded-2xl bg-white/10 backdrop-blur-sm border-2 border-white/20 overflow-hidden shadow-2xl">
-                <img
-                  src="https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?w=800&q=80"
-                  alt="Leak detector device"
-                  className="w-full h-full object-cover"
-                />
+				<img
+				  src="/frontphoto.png"
+				  alt="Leak detector device"
+				  className="w-full h-full object-cover"
+				/>
               </div>
             </div>
           </div>
@@ -102,7 +102,7 @@ export default function Home() {
               </h2>
               <div className="prose prose-lg text-gray-600 leading-relaxed">
                 <p>
-                  strap-on device uses an accelerometer and a FireBeetle ESP32. During setup it learns a baseline RMS profile of normal plumbing vibration. It samples periodically at low power, compares current RMS against baseline, and flags sustained deviations as potential leaks.
+                  Strap-on device uses an accelerometer and a FireBeetle ESP32. During setup it learns a baseline RMS profile of normal plumbing vibration. It samples periodically at low power, compares current RMS against baseline, and flags sustained deviations as potential leaks.
                 </p>
                 <p>
                   To preserve battery, it limits Wi-Fi use to brief bursts for logging and notifications to the Android app (Supabase + FCM). Hardware is intentionally simple: Velcro strap, 3D box shaped to the pipe, brass screws; no op-amp or analog filtering; only two resistors in the signal/power path.
@@ -112,7 +112,7 @@ export default function Home() {
             
             <div className="relative">
               <img
-                src="https://images.unsplash.com/photo-1621905251918-48416bd8575a?w=800&q=80"
+                src="/insidephoto.png"
                 alt="Device components"
                 className="w-full h-64 object-cover rounded-xl shadow-lg"
               />

@@ -169,7 +169,7 @@ export default function ProjectBackground() {
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div className="order-2 lg:order-1 relative">
               <img
-                src="https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?w=800&q=80"
+                src="/frontphoto.png"
                 alt="Leak detector solution"
                 className="w-full h-96 object-cover rounded-2xl shadow-2xl"
               />

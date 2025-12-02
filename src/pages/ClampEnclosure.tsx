@@ -188,7 +188,7 @@ export default function ClampEnclosure() {
           <div className="grid md:grid-cols-2 gap-6">
             <Card className="overflow-hidden border-2 border-gray-200">
               <img
-                src="https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?w=600&q=80"
+                src="frontphoto.png"
                 alt="CAD render front"
                 className="w-full h-64 object-cover"
               />
@@ -200,9 +200,9 @@ export default function ClampEnclosure() {
 
             <Card className="overflow-hidden border-2 border-gray-200">
               <img
-                src="https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=600&q=80"
+                src="sidephoto.png"
                 alt="CAD render side"
-                className="w-full h-64 object-cover"
+                className="w-full h-64 object-cover object-[center_35%]"
               />
               <div className="p-4 bg-gray-50">
                 <h3 className="font-bold text-[#0E3A5D]">Side Profile</h3>
@@ -212,9 +212,9 @@ export default function ClampEnclosure() {
 
             <Card className="overflow-hidden border-2 border-gray-200">
               <img
-                src="https://images.unsplash.com/photo-1581092160562-40aa08e78837?w=600&q=80"
+                src="widephoto.png"
                 alt="Installed on pipe"
-                className="w-full h-64 object-cover"
+                className="w-full h-64 object-cover object-[center_40%]"
               />
               <div className="p-4 bg-gray-50">
                 <h3 className="font-bold text-[#0E3A5D]">Installed Configuration</h3>
@@ -224,9 +224,9 @@ export default function ClampEnclosure() {
 
             <Card className="overflow-hidden border-2 border-gray-200">
               <img
-                src="https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=600&q=80"
+                src="insidephoto.png"
                 alt="Internal components"
-                className="w-full h-64 object-cover"
+                className="w-full h-64 object-contain"
               />
               <div className="p-4 bg-gray-50">
                 <h3 className="font-bold text-[#0E3A5D]">Internal Layout</h3>
