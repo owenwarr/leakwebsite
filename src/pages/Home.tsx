@@ -1,7 +1,17 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Download, FileText, Github, DollarSign, Zap, Battery, Wifi, AlertTriangle, CheckCircle } from "lucide-react";
+import {
+  Download,
+  FileText,
+  Github,
+  DollarSign,
+  Zap,
+  Battery,
+  Wifi,
+  AlertTriangle,
+  CheckCircle,
+} from "lucide-react";
 import SpecCard from "../components/shared/SpecCard";
 import FeatureCard from "../components/shared/FeatureCard";
 import { Link } from "react-router-dom";
@@ -33,7 +43,7 @@ export default function Home() {
           <div className="absolute top-0 left-1/4 w-96 h-96 bg-[#2CB1A1] rounded-full blur-3xl"></div>
           <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-[#2CB1A1] rounded-full blur-3xl"></div>
         </div>
-        
+
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 sm:py-32">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div>
@@ -49,28 +59,31 @@ export default function Home() {
               <p className="text-lg text-gray-300 mb-8 leading-relaxed">
                 Non-invasive vibration sensing that learns a baseline and flags sustained anomalies in your pipes.
               </p>
-              
+
               <div className="flex flex-wrap gap-4">
                 <Button className="bg-[#2CB1A1] hover:bg-[#2CB1A1]/90 text-white px-8 py-6 text-lg">
                   <Download className="w-5 h-5 mr-2" />
                   Download Poster
                 </Button>
                 <Link to={createPageUrl("Documentation")}>
-                  <Button variant="outline" className="bg-white/10 border-white/20 text-white hover:bg-white/20 px-8 py-6 text-lg backdrop-blur-sm">
+                  <Button
+                    variant="outline"
+                    className="bg-white/10 border-white/20 text-white hover:bg-white/20 px-8 py-6 text-lg backdrop-blur-sm"
+                  >
                     <FileText className="w-5 h-5 mr-2" />
                     View Documentation
                   </Button>
                 </Link>
               </div>
             </div>
-            
+
             <div className="relative">
               <div className="aspect-video rounded-2xl bg-white/10 backdrop-blur-sm border-2 border-white/20 overflow-hidden shadow-2xl">
-				<img
-				  src="/frontphoto.png"
-				  alt="Leak detector device"
-				  className="w-full h-full object-cover"
-				/>
+                <img
+                  src="/frontphoto.png"
+                  alt="Leak detector device"
+                  className="w-full h-full object-cover"
+                />
               </div>
             </div>
           </div>
@@ -102,14 +115,18 @@ export default function Home() {
               </h2>
               <div className="prose prose-lg text-gray-600 leading-relaxed">
                 <p>
-                  Strap-on device uses an accelerometer and a FireBeetle ESP32. During setup it learns a baseline RMS profile of normal plumbing vibration. It samples periodically at low power, compares current RMS against baseline, and flags sustained deviations as potential leaks.
+                  Strap-on device uses an accelerometer and a FireBeetle ESP32. During setup it learns a baseline RMS
+                  profile of normal plumbing vibration. It samples periodically at low power, compares current RMS
+                  against baseline, and flags sustained deviations as potential leaks.
                 </p>
                 <p>
-                  To preserve battery, it limits Wi-Fi use to brief bursts for logging and notifications to the Android app (Supabase + FCM). Hardware is intentionally simple: Velcro strap, 3D box shaped to the pipe, brass screws; no op-amp or analog filtering; only two resistors in the signal/power path.
+                  To preserve battery, it limits Wi-Fi use to brief bursts for logging and notifications to the Android
+                  app (Supabase + FCM). Hardware is intentionally simple: Velcro strap, 3D box shaped to the pipe, brass
+                  screws; no op-amp or analog filtering; only two resistors in the signal/power path.
                 </p>
               </div>
             </div>
-            
+
             <div className="relative">
               <img
                 src="/insidephoto.png"
@@ -131,17 +148,16 @@ export default function Home() {
             Watch our demo video to understand how the system works
           </p>
         </div>
-        
+
         <div className="max-w-4xl mx-auto">
-          <div className="aspect-video rounded-2xl bg-gray-200 border-2 border-gray-300 overflow-hidden shadow-xl flex items-center justify-center">
-            <div className="text-center">
-              <div className="w-20 h-20 bg-[#0E3A5D] rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg className="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M8 5v14l11-7z" />
-                </svg>
-              </div>
-              <p className="text-gray-500">Demo Video (Placeholder)</p>
-            </div>
+          <div className="aspect-video rounded-2xl bg-gray-200 border-2 border-gray-300 overflow-hidden shadow-xl">
+            <iframe
+              className="w-full h-full"
+              src="https://drive.google.com/file/d/1ZDg7SGmq7IrV7VsuugR6kdJ_vcIm1gpS/preview"
+              title="Leak detector demo"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+            />
           </div>
         </div>
       </section>
@@ -152,11 +168,11 @@ export default function Home() {
           <h2 className="text-3xl sm:text-4xl font-bold text-[#0E3A5D] mb-4">
             Why Choose Our Solution?
           </h2>
-          <p className="text-lg text-gray-600">
+        <p className="text-lg text-gray-600">
             Comparison with traditional leak detection products
           </p>
         </div>
-        
+
         <Card className="overflow-hidden border-2 border-gray-200">
           <div className="overflow-x-auto">
             <table className="w-full">
@@ -195,15 +211,18 @@ export default function Home() {
           <p className="text-xl mb-8 text-gray-200 max-w-2xl mx-auto">
             Explore our documentation, download resources, or check out our code repositories
           </p>
-          
+
           <div className="flex flex-wrap justify-center gap-4">
             <Link to={createPageUrl("Documentation")}>
-              <Button className="bg-white/10 border-white/20 text-white hover:bg-white/20 px-8 py-6 text-lg backdrop-blur-sm">
+              <Button className="bg-white/10 border-white/20 text-white hover:bg:white/20 px-8 py-6 text-lg backdrop-blur-sm">
                 <FileText className="w-5 h-5 mr-2" />
                 Documentation
               </Button>
             </Link>
-            <Button variant="outline" className="bg-white/10 border-white/20 text-white hover:bg-white/20 px-8 py-6 text-lg backdrop-blur-sm">
+            <Button
+              variant="outline"
+              className="bg:white/10 border-white/20 text-white hover:bg:white/20 px-8 py-6 text-lg backdrop-blur-sm"
+            >
               <Github className="w-5 h-5 mr-2" />
               View on GitHub
             </Button>
